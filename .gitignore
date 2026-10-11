@@ -1,0 +1,40 @@
+# Actual secrets and local configuration
+.env
+.env.*
+!.env.example
+private/
+*.secret
+*.pem
+*.key
+*.p12
+*.pfx
+*.local.json
+*.local.ps1
+# Runtime, caches, public upstream checkouts and generated copies
+runtimes/
+.pip-cache/
+.venv/
+venv/
+node_modules/
+cmdbox/
+activepieces/
+app-lab/cmdbox-public/
+app-lab/data/
+app-lab/tokenizer-cache/
+app-lab/python-deps/
+__pycache__/
+*.pyc
+# Raw evidence, personal local reports and logs
+evidence/
+local-review/
+app-lab/runtime-trace.jsonl
+*.log
+*.sqlite*
+*.db
+*.zip
+*.whl
+*.tgz
+*.vhdx
+*.png
+*.jpg
+local-archive/

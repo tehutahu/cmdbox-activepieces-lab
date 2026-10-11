@@ -1,0 +1,33 @@
+name: cmdbox-ap-lab-mock
+services:
+  redis:
+    image: redis:7.4.8@sha256:3e0669e42d4fe421c9dea0ba5fbc04d336b80b4f32a6c7d25bee3a1d089288a1
+    platform: linux/amd64
+    command: [redis-server, --save, '', --appendonly, 'no']
+    networks: [isolated]
+    restart: 'no'
+    mem_limit: 128m
+    cpus: '0.5'
+    security_opt: [no-new-privileges:true]
+  redis-proxy:
+    image: nginx:stable-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+    platform: linux/amd64
+    depends_on: [redis]
+    user: '101:101'
+    entrypoint: [nginx]
+    command: [-c, /etc/nginx/nginx.conf, -g, 'daemon off;']
+    ports: ['127.0.0.1:18091:8080']
+    volumes: ['./redis-proxy.conf:/etc/nginx/nginx.conf:ro']
+    networks: [isolated, local-control]
+    read_only: true
+    tmpfs: ['/tmp:rw,noexec,nosuid,size=16m']
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+    mem_limit: 64m
+    cpus: '0.25'
+networks:
+  isolated:
+    internal: true
+  local-control:
+    internal: false

@@ -1,0 +1,310 @@
+--- a/cmdbox/app/features/web/cmdbox_web_agent.py
++++ b/cmdbox/app/features/web/cmdbox_web_agent.py
+@@ -80,7 +80,8 @@
+                 startmsg = ret.get('success', {}).get('data', {}).get(startmsg, startmsg)
+             yield json.dumps(dict(success=dict(message=startmsg)), default=common.default_json_enc)
+ 
+-            agent_chat = cmdbox_agent_chat.AgentChat(self.appcls, self.ver)
++            agent_chat_factory = getattr(web, 'agent_chat_factory', cmdbox_agent_chat.AgentChat)
++            agent_chat = agent_chat_factory(self.appcls, self.ver)
+             _options = options.Options.getInstance(self.appcls, self.ver)
+             retry_interval = _options.get_cmd_opt('agent', 'chat', 'retry_interval').get('default', 3)
+             retry_count = _options.get_cmd_opt('agent', 'chat', 'retry_count').get('default', 5)
+@@ -110,7 +111,8 @@
+                                                               retry_interval=retry_interval, retry_count=retry_count, timeout=timeout,
+                                                               runner_name=runner_name, user_name=user_name, session_id=session_id,
+                                                               mcpserver_apikey=mcpserver_apikey, a2asv_apikey=a2asv_apikey,
+-                                                              message=query, call_tts=call_tts, reasoning_effort=call_reasoning):
++                                                              message=query, call_tts=call_tts, reasoning_effort=call_reasoning,
++                                                              verified_web_session=session):
+ 
+                         if st != cmdbox_agent_chat.AgentChat.RESP_SUCCESS:
+                             yield common.to_str(result)
+--- a/cmdbox/app/features/cli/cmdbox_agent_chat.py
++++ b/cmdbox/app/features/cli/cmdbox_agent_chat.py
+@@ -5,6 +5,7 @@
+ from cmdbox.app.features.cli.agent import agant_base
+ from cmdbox.app.options import Options
+ from contextlib import aclosing
++from cmdbox_gateway import integration as ap_gateway
+ from pathlib import Path
+ from typing import Callable, Dict, Any, Optional, Tuple, List, Union
+ import argparse
+@@ -152,7 +153,7 @@
+ 
+     def apprun_generate(self, logger:logging.Logger, host:str, port:int, password:str, svname:str, retry_interval:int, retry_count:int, timeout:int,
+                         runner_name:str, user_name:str, session_id:str, a2asv_apikey:str, mcpserver_apikey:str, message:str,
+-                        call_tts:bool, reasoning_effort:str):
++                        call_tts:bool, reasoning_effort:str, verified_web_session:Optional[Dict[str, Any]]=None):
+         """
+         Agentチャットを実行します
+         
+@@ -179,6 +180,9 @@
+         payload = dict(runner_name=runner_name, user_name=user_name, session_id=session_id,
+                        a2asv_apikey=a2asv_apikey, mcpserver_apikey=mcpserver_apikey, message=message,
+                        call_tts=call_tts, reasoning_effort=reasoning_effort)
++        if verified_web_session is not None:
++            # SERVER session supplied only by the checked Web route, never chat JSON.
++            payload = ap_gateway.attach_verified_web_job(verified_web_session, payload)
+         payload_b64 = convert.str2b64str(common.to_str(payload))
+ 
+         cl = client.Client(logger, redis_host=host, redis_port=port, redis_password=password, svname=svname)
+@@ -659,6 +663,10 @@
+         auth_scheme = HTTPBearer()
+         tools = []
+         for mcpsv_conf in mcpsv_confs:
++            if mcpsv_conf.get('mcpserver_auth_mode') == 'user_ap_binding':
++                # Explicit server configuration: NO static/delegated bearer fallback.
++                tools.append(ap_gateway.approved_ap_toolset())
++                continue
+             mcpserver_url = mcpsv_conf.get('mcpserver_url', None)
+             mcpserver_apikey = mcpsv_conf.get('mcpserver_apikey', None)
+             mcpserver_delegated_auth = mcpsv_conf.get('mcpserver_delegated_auth', False)
+@@ -918,6 +926,8 @@
+         chat_ctx = None
+         try:
+             payload = json.loads(convert.b64str2str(msg[2]))
++            trusted_actor = ap_gateway.verify_worker_job(payload)
++            adk_user_id = ap_gateway.adk_identity(trusted_actor, payload.get('user_name'))
+             runner_name = payload.get('runner_name')
+             user_name = payload.get('user_name')
+             session_id = payload.get('session_id')
+@@ -927,6 +937,9 @@
+             litellm.drop_params = True
+             # 設定をロードする
+             runner_conf, agent_conf, llm_conf, mcpsv_confs, ds_conf = self.load_conf(runner_name, data_dir, logger)
++            if any(c.get('mcpserver_auth_mode') == 'user_ap_binding' for c in mcpsv_confs):
++                # ADK catches tool-load errors; reject unbound jobs BEFORE model execution.
++                ap_gateway.require_ap_connection(trusted_actor)
+             agent_conf = self.prepare_agent_conf(agent_conf, payload)
+             # Agentを作成する
+             agent = self.create_agent(logger=logger, data_dir=data_dir, disable_remote_agent=False,
+@@ -936,13 +949,13 @@
+             session_service = self.create_session_service(logger=logger, data_dir=data_dir, ds_conf=ds_conf)
+             # セッションを作成する
+             agent_session = await self.create_agent_session(session_service=session_service, runner_name=runner_name,
+-                                                            user_name=user_name, session_id=session_id)
++                                                            user_name=adk_user_id, session_id=session_id)
+             # Runner用のプラグインを作成する
+             plugins = await self.create_runner_plugin(logger=logger, data_dir=data_dir,
+                                                       redis_cli=redis_cli, payload=payload,
+                                                       agent_session=agent_session, reskey=reskey)
+             # Artifactサービスを作成する
+-            artifact_root_dir = data_dir / '.users' / user_name / 'artifacts' / runner_name
++            artifact_root_dir = data_dir / '.users' / adk_user_id / 'artifacts' / runner_name
+             artifact_service = self.create_artifact_service(logger=logger, artifact_root_dir=artifact_root_dir)
+             # Runnerを作成する
+             runner = self._create_runner(logger=logger, data_dir=data_dir, runner_conf=runner_conf,
+@@ -957,7 +970,7 @@
+             chat_ctx = await self.before_chat_run(logger=logger, data_dir=data_dir, redis_cli=redis_cli,
+                                                   payload=payload, agent_session=agent_session, reskey=reskey)
+             await self._svrun_chat_exec(redis_cli, payload, runner, agent_session, content,
+-                                        enable_tts, tts_engine_obj, reskey, chat_ctx=chat_ctx)
++                                        enable_tts, tts_engine_obj, reskey, chat_ctx=chat_ctx, trusted_actor=trusted_actor)
+             st = await self.after_chat_run(logger=logger, data_dir=data_dir, redis_cli=redis_cli,
+                                                  payload=payload, agent_session=agent_session,
+                                                  reskey=reskey, chat_ctx=chat_ctx)
+@@ -1063,7 +1076,7 @@
+ 
+     async def _svrun_chat_exec(self, redis_cli:redis_client.RedisClient, payload:Dict[str, Any],
+                                runner:Any, agent_session:Any, content:Any,
+-                               enable_tts:bool, tts_engine_obj:Any, reskey:str, chat_ctx:Any) -> None:
++                               enable_tts:bool, tts_engine_obj:Any, reskey:str, chat_ctx:Any, trusted_actor:Any=None) -> None:
+         """
+         チャットの実行を行います
+ 
+@@ -1089,100 +1102,102 @@
+         run_config = RunConfig(streaming_mode=StreamingMode.NONE)
+         resval = []
+         token_usage = dict(prompt_tokens=0, completion_tokens=0, total_tokens=0)
+-        async with aclosing(runner.run_async(user_id=user_name,
+-                                                session_id=agent_session.id,
+-                                                new_message=content,
+-                                                state_delta=None,
+-                                                run_config=run_config)) as run_iter:
+-            try:
+-                async for event in run_iter:
+-                    ev:Event = event
+-                    outputs = dict(success=dict(),)
+-                    success = outputs['success']
+-                    ids = outputs['success']['ids'] = dict()
+-                    ids['agent_session_id'] = agent_session.id
+-                    ids['event_id'] = ev.id
+-                    ids['invocation_id'] = ev.invocation_id
+-                    flags = outputs['success']['flags'] = dict()
+-                    flags['turn_complete'] = bool(ev.turn_complete)
+-                    flags['interrupted'] = bool(ev.interrupted)
+-                    msg, is_func_call, is_func_response, is_final_response, st = self.__class__.gen_msg(ev)
+-                    flags['final_response'] = is_final_response
+-                    flags['function_call'] = is_func_call
+-                    flags['function_response'] = is_func_response
+-                    if st != self.RESP_SUCCESS:
+-                        outputs['warn'] = msg
+-
+-                    if hasattr(event, "usage_metadata") and event.usage_metadata:
+-                        meta = event.usage_metadata
+-                        token_usage['prompt_tokens'] += getattr(meta, "prompt_token_count", 0)
+-                        token_usage['completion_tokens'] += getattr(meta, "completion_token_count", 0)
+-                        token_usage['total_tokens'] += getattr(meta, "total_token_count", 0)
+-
+-                    calls = ev.get_function_calls() or []
+-                    if calls:
+-                        success['function_calls'] = [self._serialize_function_call(c) for c in calls]
+-
+-                    responses = ev.get_function_responses() or []
+-                    if responses:
+-                        success['function_responses'] = [self._serialize_function_response(r) for r in responses]
+-
+-                    artifacts = []
+-                    if ev.actions and ev.actions.artifact_delta:
+-                        success['artifact_delta'] = dict(ev.actions.artifact_delta)
+-                        if hasattr(runner, 'artifact_service') and runner.artifact_service is not None:
+-                            for filename, version in ev.actions.artifact_delta.items():
++        adk_user_id = ap_gateway.adk_identity(trusted_actor, user_name)
++        with ap_gateway.trusted_runner_scope(trusted_actor, agent_session.id):
++            async with aclosing(runner.run_async(user_id=adk_user_id,
++                                                    session_id=agent_session.id,
++                                                    new_message=content,
++                                                    state_delta=None,
++                                                    run_config=run_config)) as run_iter:
++                try:
++                    async for event in run_iter:
++                        ev:Event = event
++                        outputs = dict(success=dict(),)
++                        success = outputs['success']
++                        ids = outputs['success']['ids'] = dict()
++                        ids['agent_session_id'] = agent_session.id
++                        ids['event_id'] = ev.id
++                        ids['invocation_id'] = ev.invocation_id
++                        flags = outputs['success']['flags'] = dict()
++                        flags['turn_complete'] = bool(ev.turn_complete)
++                        flags['interrupted'] = bool(ev.interrupted)
++                        msg, is_func_call, is_func_response, is_final_response, st = self.__class__.gen_msg(ev)
++                        flags['final_response'] = is_final_response
++                        flags['function_call'] = is_func_call
++                        flags['function_response'] = is_func_response
++                        if st != self.RESP_SUCCESS:
++                            outputs['warn'] = msg
++
++                        if hasattr(event, "usage_metadata") and event.usage_metadata:
++                            meta = event.usage_metadata
++                            token_usage['prompt_tokens'] += getattr(meta, "prompt_token_count", 0)
++                            token_usage['completion_tokens'] += getattr(meta, "completion_token_count", 0)
++                            token_usage['total_tokens'] += getattr(meta, "total_token_count", 0)
++
++                        calls = ev.get_function_calls() or []
++                        if calls:
++                            success['function_calls'] = [self._serialize_function_call(c) for c in calls]
++
++                        responses = ev.get_function_responses() or []
++                        if responses:
++                            success['function_responses'] = [self._serialize_function_response(r) for r in responses]
++
++                        artifacts = []
++                        if ev.actions and ev.actions.artifact_delta:
++                            success['artifact_delta'] = dict(ev.actions.artifact_delta)
++                            if hasattr(runner, 'artifact_service') and runner.artifact_service is not None:
++                                for filename, version in ev.actions.artifact_delta.items():
++                                    try:
++                                        artifact_part = await runner.artifact_service.load_artifact(
++                                            app_name=runner_name,
++                                            user_id=adk_user_id,
++                                            session_id=agent_session.id,
++                                            filename=filename,
++                                            version=version,
++                                        )
++                                        artifacts.append(self._serialize_artifact(filename, version, artifact_part))
++                                    except Exception as e:
++                                        artifacts.append(dict(filename=filename, version=version, text=f"Failed to load artifact: {e}"))
++                        if artifacts:
++                            success['artifacts'] = artifacts
++
++                        if msg:
++                            success['message'] = msg
++                            options.Options.getInstance().audit_exec(body=dict(agent_session=agent_session.id, result=msg),
++                                                                        audit_type=options.Options.AT_USER, user=user_name)
++                            if enable_tts and tts_engine_obj and not is_func_call and not is_func_response:
+                                 try:
+-                                    artifact_part = await runner.artifact_service.load_artifact(
+-                                        app_name=runner_name,
+-                                        user_id=user_name,
+-                                        session_id=agent_session.id,
+-                                        filename=filename,
+-                                        version=version,
+-                                    )
+-                                    artifacts.append(self._serialize_artifact(filename, version, artifact_part))
++                                    try:
++                                        msg_json = json.loads(msg) if isinstance(msg, str) else msg
++                                        msg = msg_json['message'] if isinstance(msg_json, dict) and 'message' in msg_json else msg
++                                    except Exception:
++                                        pass
++                                    wav_b64 = cmdbox_tts_say.TtsSay.tts_say(tts_engine_obj, msg) \
++                                        if msg is not None and msg.strip() != '' else None
++                                    success['wav_b64'] = wav_b64
+                                 except Exception as e:
+-                                    artifacts.append(dict(filename=filename, version=version, text=f"Failed to load artifact: {e}"))
+-                    if artifacts:
+-                        success['artifacts'] = artifacts
+-
+-                    if msg:
+-                        success['message'] = msg
+-                        options.Options.getInstance().audit_exec(body=dict(agent_session=agent_session.id, result=msg),
+-                                                                    audit_type=options.Options.AT_USER, user=user_name)
+-                        if enable_tts and tts_engine_obj and not is_func_call and not is_func_response:
+-                            try:
+-                                try:
+-                                    msg_json = json.loads(msg) if isinstance(msg, str) else msg
+-                                    msg = msg_json['message'] if isinstance(msg_json, dict) and 'message' in msg_json else msg
+-                                except Exception:
+-                                    pass
+-                                wav_b64 = cmdbox_tts_say.TtsSay.tts_say(tts_engine_obj, msg) \
+-                                    if msg is not None and msg.strip() != '' else None
+-                                success['wav_b64'] = wav_b64
+-                            except Exception as e:
+-                                success['wav_b64'] = None
+-
+-                    has_output = any([
+-                        success.get('message') is not None and str(success.get('message')).strip() != '',
+-                        bool(success.get('function_calls')),
+-                        bool(success.get('function_responses')),
+-                        bool(success.get('artifact_delta')),
+-                        bool(success.get('artifacts')),
+-                    ])
+-
+-                    resval.append(outputs)
+-                    if has_output:
+-                        redis_cli.rpush(reskey, outputs)
+-            except Exception as e:
+-                raise e
+-
+-        msg = dict(success=dict(message=f"Chat '{runner_name}' completed.",
+-                                ressize=len(convert.str2b64str(common.to_str(resval))),
+-                                token_usage=token_usage),
+-                                end=True)
+-        redis_cli.rpush(reskey, msg)
+-        await run_iter.aclose()
++                                    success['wav_b64'] = None
++
++                        has_output = any([
++                            success.get('message') is not None and str(success.get('message')).strip() != '',
++                            bool(success.get('function_calls')),
++                            bool(success.get('function_responses')),
++                            bool(success.get('artifact_delta')),
++                            bool(success.get('artifacts')),
++                        ])
++
++                        resval.append(outputs)
++                        if has_output:
++                            redis_cli.rpush(reskey, outputs)
++                except Exception as e:
++                    raise e
++
++            msg = dict(success=dict(message=f"Chat '{runner_name}' completed.",
++                                    ressize=len(convert.str2b64str(common.to_str(resval))),
++                                    token_usage=token_usage),
++                                    end=True)
++            redis_cli.rpush(reskey, msg)
++            await run_iter.aclose()
+ 
+     @staticmethod
+     def _to_primitive(value: Any) -> Any:

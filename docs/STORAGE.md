@@ -1,0 +1,11 @@
+# code folderとDocker dataの違い
+
+code、patch、資料、公式Python依存/cacheはprojectのdriveへまとめられます。専用embed runtimeはそこでhash lockから再構築します。path依存のvenvをそのままコピーする手順ではありません。
+
+Docker image/layer/named volume/anonymous volumeはDocker Desktop管理のVM diskに保存されます。Docker Desktopで別driveを指定済みならその配置を維持します。container内の`/var/lib/docker`はWindowsのC driveという意味ではありません。APのnamed volumeはcredential/dataを含み得るため、Gitへ入れません。
+
+bind mountは例として`./app-lab/redis-proxy.conf`をhostから読み取ります。repositoryを別driveへ置いても、稼働中containerのmount先は勝手に切り替わりません。移行する場合は、そのprojectのWeb/workerを正常停止し、対象composeだけをstopし、新checkoutから別の専用compose projectを起動して疎通を確認します。旧container/volume/source/証跡はrollback用に保持します。他projectやDocker全体をstop/down/pruneしません。
+
+`app-lab/data/`のbinding/historyはhost SQLite、RedisはRDB/AOFを無効にした合成stateです。11件はapp再起動の永続化を検証しますが、Redis container再作成後のcookie維持を保証するものではありません。APのvolume移行やsecret初期化をこのmock移行と混同しません。
+
+C drive整理は、新しいprojectで再現が成功した後、停止済みの専用生成環境/cacheだけを別の非公開archiveへ退避する案です。原clone・証跡、稼働中DockerのC側bind source、shared/global依存は当面保持します。恒久削除・全体清掃・Docker disk移動は行いません。実個人path、disk容量、volume IDは公開資料に含めません。

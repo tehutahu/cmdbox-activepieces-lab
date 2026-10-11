@@ -1,0 +1,223 @@
+{
+  "date": "2026-10-11",
+  "platform": "Windows local lab",
+  "actualProviderCredentialUsed": false,
+  "actualApHistoricalTest": {
+    "status": "pass",
+    "adkScenarios": 8,
+    "newAdapterConnected": false,
+    "rawEvidencePublished": false,
+    "targetGrantsRevoked": true,
+    "oldTokenRejectionProbed": false
+  },
+  "stoppedInternalHttpExperiment": {
+    "status": "unclassified-failure",
+    "httpStatus": null,
+    "resumed": false,
+    "rerunCodeIncluded": false
+  },
+  "offlineAdapter": {
+    "status": "pass",
+    "scenarioCount": 35,
+    "actualApContacted": false,
+    "providerInference": false,
+    "newActualGrantCreated": false,
+    "outcomes": [
+      {
+        "name": "test_core.CoreTests.test_adk_identity_session_and_app_checks",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_alias_and_extra_arguments_denied",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_audience_checked_even_with_valid_test_signature",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_body_uid_project_or_credential_ref_not_accepted",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_change_generation_during_await_rejects_result",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_context_required_and_reset_after_exception",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_disable_during_await_rejects_result",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_expired_and_future_proofs_rejected",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_generation_cannot_rollback_or_reuse",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_identity_claim_tamper_rejected",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_management_and_wildcard_policy_not_constructible",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_missing_binding_or_disabled_requires_reconnect",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_missing_negative_boolean_or_string_uid_rejected",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_no_credential_fallback",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_no_unsigned_worker_identity",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_parallel_same_chat_users_keep_distinct_binding_and_cache",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_payload_tamper_rejected",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_redis_guard_uses_atomic_nx_ttl_and_fail_closed",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_remote_wrong_owner_and_error_text_not_exposed",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_replay_guard_shared_across_workers",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_verified_login_uid_not_client_display",
+        "status": "pass"
+      },
+      {
+        "name": "test_core.CoreTests.test_wrong_cached_uid_rejected",
+        "status": "pass"
+      },
+      {
+        "name": "test_integration.IntegrationTests.test_configured_signed_job_uid_handoff",
+        "status": "pass"
+      },
+      {
+        "name": "test_integration.IntegrationTests.test_no_default_runtime_or_signing_key",
+        "status": "pass"
+      },
+      {
+        "name": "test_integration.IntegrationTests.test_preflight_reconnect_before_runner",
+        "status": "pass"
+      },
+      {
+        "name": "test_integration.IntegrationTests.test_signed_job_without_worker_config_fails_closed",
+        "status": "pass"
+      },
+      {
+        "name": "test_integration.IntegrationTests.test_unsigned_legacy_job_has_no_trusted_actor",
+        "status": "pass"
+      },
+      {
+        "name": "test_integration.IntegrationTests.test_unsigned_legacy_name_cannot_impersonate_uid_namespace",
+        "status": "pass"
+      },
+      {
+        "name": "Signed Web job -> shared actual ADK Runner: concurrent A/B same session ID",
+        "status": "pass"
+      },
+      {
+        "name": "Repeated actual ADK turns retain separate UID histories",
+        "status": "pass"
+      },
+      {
+        "name": "Only explicitly approved synthetic alias reaches actual ADK model",
+        "status": "pass"
+      },
+      {
+        "name": "Cached/contextless discovery without verified invocation is refused",
+        "status": "pass"
+      },
+      {
+        "name": "Cached A tool cannot execute for B or accept LLM-selected UID",
+        "status": "pass"
+      },
+      {
+        "name": "Worker preflight: unbound UID requires reconnect before actual ADK model/transport",
+        "status": "pass"
+      },
+      {
+        "name": "Revoked dummy binding refuses cached A tool; B continues",
+        "status": "pass"
+      }
+    ]
+  },
+  "publicCmdboxAppDummyPath": {
+    "status": "pass",
+    "scenarioCount": 11,
+    "actualApContacted": false,
+    "providerInference": false,
+    "newActualGrantCreated": false,
+    "outcomes": [
+      {
+        "name": "Public cmdbox bootstrap; unauthenticated and wrong-password requests refused",
+        "status": "pass"
+      },
+      {
+        "name": "Native password login creates separate server-side UID sessions",
+        "status": "pass"
+      },
+      {
+        "name": "Real WebSocket -> native Redis queue -> native worker -> actual ADK -> approved dummy tool",
+        "status": "pass"
+      },
+      {
+        "name": "UID history APIs and persistent ADK SQLite separate same session ID across repeated turns",
+        "status": "pass"
+      },
+      {
+        "name": "Client UID/project selectors cannot change principal; B cannot read A-only history",
+        "status": "pass"
+      },
+      {
+        "name": "Unbound authenticated UID fails before ADK model/tool execution",
+        "status": "pass"
+      },
+      {
+        "name": "Synthetic-only binding persists in SQLite and reloads in another registry instance",
+        "status": "pass"
+      },
+      {
+        "name": "Durable dummy disconnect stops A through actual Web path; B continues",
+        "status": "pass"
+      },
+      {
+        "name": "Application restart retains UID history and disabled binding without reactivation",
+        "status": "pass"
+      },
+      {
+        "name": "Explicit local dummy binding update uses a newer generation; no OAuth/grant creation",
+        "status": "pass"
+      },
+      {
+        "name": "Runtime trace proves native handoffs, exact allowlist, no AP/external socket attempts and clean shutdown",
+        "status": "pass"
+      }
+    ],
+    "serverProcessesStopped": true,
+    "forbiddenSocketAttempts": 0
+  }
+}

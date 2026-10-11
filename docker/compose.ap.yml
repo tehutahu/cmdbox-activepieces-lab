@@ -1,0 +1,50 @@
+name: cmdbox-ap-lab-ap
+services:
+  activepieces:
+    profiles: [manual-approved-bootstrap]
+    image: activepieces/activepieces:0.92.2@sha256:87295caa32a14b4a35f3c8681ebbcb6c49bedfdf7bf732c5469d5a0a4417e5ee
+    platform: linux/amd64
+    environment:
+      AP_EDITION: ce
+      AP_DB_TYPE: PGLITE
+      AP_REDIS_TYPE: MEMORY
+      AP_FRONTEND_URL: http://localhost:18098
+      AP_ENCRYPTION_KEY: ${AP_LAB_ENCRYPTION_KEY:?Approved bootstrap configuration required}
+      AP_JWT_SECRET: ${AP_LAB_JWT_SECRET:?Approved bootstrap configuration required}
+      AP_CONTAINER_TYPE: WORKER_AND_APP
+      AP_EXECUTION_MODE: SANDBOX_CODE_ONLY
+      AP_WORKER_CONCURRENCY: '1'
+      AP_TELEMETRY_ENABLED: 'false'
+      AP_CLOUD_AUTH_ENABLED: 'false'
+      AP_PIECES_SYNC_MODE: NONE
+      AP_NETWORK_MODE: STRICT
+      AP_TOOL_SEARCH_ENABLED: 'false'
+      AP_QUEUE_UI_ENABLED: 'false'
+    volumes: ['ap-data:/root/.activepieces']
+    networks: [isolated]
+    restart: 'no'
+    mem_limit: 3g
+    cpus: '2.0'
+  ingress:
+    profiles: [manual-approved-bootstrap]
+    image: nginx:stable-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+    platform: linux/amd64
+    depends_on: [activepieces]
+    user: '101:101'
+    entrypoint: [nginx]
+    command: [-c, /etc/nginx/nginx.conf, -g, 'daemon off;']
+    ports: ['127.0.0.1:18098:8080']
+    volumes: ['./ap-ingress.conf:/etc/nginx/nginx.conf:ro']
+    networks: [isolated, localhost-control]
+    read_only: true
+    cap_drop: [ALL]
+    tmpfs: ['/tmp:rw,noexec,nosuid,size=16m']
+    security_opt: [no-new-privileges:true]
+    restart: 'no'
+    mem_limit: 128m
+volumes:
+  ap-data:
+networks:
+  isolated:
+    internal: true
+  localhost-control:
