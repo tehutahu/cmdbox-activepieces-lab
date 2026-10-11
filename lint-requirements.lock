@@ -1,0 +1,2 @@
+# Optional correctness lint, Windows amd64, fetched from official PyPI.
+ruff==0.14.0 --hash=sha256:ea95da28cd874c4d9c922b39381cbd69cb7e7b49c21b8152b014bd4f52acddc2

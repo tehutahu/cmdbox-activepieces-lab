@@ -3,10 +3,13 @@ import os
 from pathlib import Path
 import sys
 ROOT = Path(__file__).resolve().parent
+DATA = Path(os.environ.get('CMDBOX_LAB_DATA_ROOT', ROOT / 'data')).resolve()
+if not DATA.is_relative_to(ROOT / 'data'):
+    raise RuntimeError('Synthetic data must remain inside the ignored app-lab/data directory')
 RUNTIME_ROOT = Path(os.environ.get('CMDBOX_LAB_RUNTIME_ROOT', ROOT.parent / 'runtimes')).resolve()
 APP_DEPS = RUNTIME_ROOT / 'app-deps'
 sys.path[:0] = [str(APP_DEPS), str(ROOT / 'cmdbox-public'), str(ROOT.parent / 'poc')]
-os.environ['DATA_DIR'] = str(ROOT / 'data')
+os.environ['DATA_DIR'] = str(DATA)
 os.environ['REDIS_HOST'] = '127.0.0.1'
 os.environ['REDIS_PORT'] = '18091'
 os.environ['REDIS_PASSWORD'] = ''
@@ -29,7 +32,7 @@ def install_socket_policy():
     def authorized(address):
         if not isinstance(address, tuple): return False
         if address[0] not in ('127.0.0.1','localhost','::1'): return False
-        if address[1] in (18090,18091): return True
+        if address[1] in (18090,18091,18092): return True
         # Python implements socketpair over ephemeral loopback on Windows.
         return any(x.name == 'socketpair' and Path(x.filename).resolve() == Path(socket.__file__).resolve()
                    for x in traceback.extract_stack())

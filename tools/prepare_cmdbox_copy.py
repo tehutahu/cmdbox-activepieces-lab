@@ -1,4 +1,4 @@
-"""Apply the public 2-file patch to a fresh ignored copy; preserve original checkout."""
+"""Apply the public 4-file patch to a fresh ignored copy; preserve original checkout."""
 from pathlib import Path
 import ast
 import shutil
@@ -13,6 +13,7 @@ shutil.copytree(original,dest,ignore=shutil.ignore_patterns('.git','__pycache__'
 patch=ROOT/'patches'/'cmdbox-uid-gateway.diff'
 subprocess.run(['git','apply','--check',str(patch)],cwd=dest,check=True)
 subprocess.run(['git','apply',str(patch)],cwd=dest,check=True)
-for name in ('web/cmdbox_web_agent.py','cli/cmdbox_agent_chat.py'):
+for name in ('web/cmdbox_web_agent.py','cli/cmdbox_agent_chat.py',
+             'cli/cmdbox_agent_session_list.py','cli/cmdbox_agent_session_del.py'):
     ast.parse((dest/'cmdbox'/'app'/'features'/name).read_text(encoding='utf8'))
 print('Independent public cmdbox copy prepared; original checkout unchanged.')

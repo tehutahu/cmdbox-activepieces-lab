@@ -1,5 +1,7 @@
 # 次の課題と完成条件
 
+更新: 下記の初期local/mock項目は[継続検証](CONTINUATION.md)の限定範囲で実装・通過しました。設定の明示mode、fake lifecycle、2 Web/worker、合成ADK履歴移行、選択した標準resource/admin APIを対象とします。残る実AP/provider/production vault/全UI/API/実履歴の条件は同文書の未検証欄を参照してください。停止済み境界試験の再開は含みません。
+
 project化・移行・公開candidate確認・レポートを先に完了し、その後に次の検証へ進みます。新しいsessionは整理のためだけに使い、過去の停止や安全判定を回避しません。
 
 ## 既存権限で進められるlocal/mock作業

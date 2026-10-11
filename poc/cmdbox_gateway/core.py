@@ -218,7 +218,10 @@ class AuthorizedFlowBroker:
     def require_actor_connection(self, actor):
         # Worker calls immediately after verification and before starting ADK.
         require(isinstance(actor, Actor), 'signed_web_identity_required')
-        self._registry.resolve(actor.uid)
+        binding = self._registry.resolve(actor.uid)
+        ensure = getattr(self._credentials, 'ensure_active', None)
+        if ensure:
+            ensure(binding)
 
     async def call(self, context, *, alias, arguments, expected_uid, expected_generation):
         invocation, binding = self.binding_for(context)

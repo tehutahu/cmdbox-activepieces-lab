@@ -1,5 +1,7 @@
 # cmdbox-activepieces-lab
 
+追加のlocal/mock継続検証は[CONTINUATION](docs/CONTINUATION.md)にあります。設定schema/bootstrap、fake接続lifecycle、2 Web/worker、合成旧履歴移行、標準API棚卸しを実アプリ経路につないで検証しました。実AP/実providerとの新adapter統合は未実施です。
+
 公開cmdbox、Activepieces Community Edition、Google ADKを使い、ログインUIDごとのMCP実行を検討するWindows向け検証プロジェクトです。非公開業務アプリのコードやGoogle/Slackの実credentialは含みません。
 
 独立した合成試験として、UID adapterの35件と、実Webログイン→Redis→native cmdbox worker→実ADK→ダミーツールの11シナリオが通過しています。過去の実AP/MCP/ADK試験とは別の結果です。[検証レポート](docs/VALIDATION.md)、[設計](docs/ARCHITECTURE.md)、[残る課題](docs/NEXT-STEPS.md)、[管理者・利用者・提供者の作業](docs/RESPONSIBILITIES.md)を参照してください。

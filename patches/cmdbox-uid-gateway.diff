@@ -49,18 +49,74 @@
          payload_b64 = convert.str2b64str(common.to_str(payload))
  
          cl = client.Client(logger, redis_host=host, redis_port=port, redis_password=password, svname=svname)
-@@ -659,6 +663,10 @@
+@@ -658,52 +662,21 @@
+ 
          auth_scheme = HTTPBearer()
          tools = []
++        from cmdbox_gateway.config import validate_tool_config, static_headers, UID_MODE
          for mcpsv_conf in mcpsv_confs:
-+            if mcpsv_conf.get('mcpserver_auth_mode') == 'user_ap_binding':
-+                # Explicit server configuration: NO static/delegated bearer fallback.
+-            mcpserver_url = mcpsv_conf.get('mcpserver_url', None)
+-            mcpserver_apikey = mcpsv_conf.get('mcpserver_apikey', None)
+-            mcpserver_delegated_auth = mcpsv_conf.get('mcpserver_delegated_auth', False)
+-            mcpserver_transport = mcpsv_conf.get('mcpserver_transport', 'streamable-http')  # sse
+-            auth_cred = AuthCredential(auth_type=AuthCredentialTypes.HTTP)
+-            if mcpserver_transport == 'sse':
+-                conn_params = SseConnectionParams(
+-                    url=mcpserver_url,
+-                    timeout=120,
+-                    sse_read_timeout=600,
+-                )
+-            else:
+-                conn_params = StreamableHTTPConnectionParams(
+-                    url=mcpserver_url,
+-                    timeout=120,
+-                    sse_read_timeout=600,
+-                )
+-            if self.call_a2asv_start and mcpserver_apikey is not None:
+-                conn_params.headers = dict(Authorization=f"Bearer {mcpserver_apikey}")
+-            def _warp(mcpserver_apikey:str, mcpserver_delegated_auth:bool):
+-                # mcpserver_delegated_auth=Trueの場合、chatコマンド実行時に、
+-                # Signin情報からapikeyを取得してMCPサーバーに転送するためのヘッダープロバイダー
+-                def header_provider(readonly_context:ReadonlyContext) -> Dict[str, str]:
+-                    scope = signin.get_request_scope()
+-                    # delegated_authが有効な場合、Signin情報からapikeyを取得して使用
+-                    if scope is not None and mcpserver_delegated_auth and scope.get("mcpserver_apikey", None) is not None:
+-                        return dict(Authorization=f"Bearer {scope['mcpserver_apikey']}")
+-                    # delegated_authが無効な場合、設定済みのAPIKeyを使用
+-                    elif not mcpserver_delegated_auth and mcpserver_apikey is not None:
+-                        return dict(Authorization=f"Bearer {mcpserver_apikey}")
+-                    # fastmcp経由で来たときはreqヘッダーからAuthorizationを取得して転送
+-                    elif mcpserver_delegated_auth and 'req' in scope and 'headers' in scope['req']:
+-                        req_headers = scope['req'].headers
+-                        if 'authorization' in req_headers:
+-                            return dict(Authorization=req_headers['authorization'])
+-                    return {}
+-                return header_provider
+-            toolset = MCPToolset(
+-                connection_params=conn_params,
+-                tool_filter=mcpsv_conf.get('mcpserver_mcp_tools', []),
+-                auth_scheme=auth_scheme,
+-                auth_credential=auth_cred,
+-                header_provider=_warp(mcpserver_apikey, mcpserver_delegated_auth),
+-            )
+-            tools.append(toolset)
++            mode = validate_tool_config(mcpsv_conf)
++            if mode == UID_MODE:
 +                tools.append(ap_gateway.approved_ap_toolset())
 +                continue
-             mcpserver_url = mcpsv_conf.get('mcpserver_url', None)
-             mcpserver_apikey = mcpsv_conf.get('mcpserver_apikey', None)
-             mcpserver_delegated_auth = mcpsv_conf.get('mcpserver_delegated_auth', False)
-@@ -918,6 +926,8 @@
++            params_class = SseConnectionParams if mcpsv_conf.get('mcpserver_transport') == 'sse' else StreamableHTTPConnectionParams
++            conn_params = params_class(url=mcpsv_conf['mcpserver_url'], timeout=120, sse_read_timeout=600)
++            # Explicit shared static tool credential only; no request/session/header fallback.
++            def header_provider(readonly_context, config=mcpsv_conf):
++                return static_headers(config)
++            factory = getattr(self, 'mcp_toolset_factory', MCPToolset)
++            tools.append(factory(connection_params=conn_params, tool_filter=mcpsv_conf['mcpserver_mcp_tools'],
++                                 auth_scheme=auth_scheme, auth_credential=AuthCredential(auth_type=AuthCredentialTypes.HTTP),
++                                 header_provider=header_provider))
+         return tools
+ 
+     def create_tool_skills(self, logger:logging.Logger, data_dir:Path, agent_conf:Dict[str, Any]) -> List[Any]:
+@@ -918,6 +891,8 @@
          chat_ctx = None
          try:
              payload = json.loads(convert.b64str2str(msg[2]))
@@ -69,17 +125,15 @@
              runner_name = payload.get('runner_name')
              user_name = payload.get('user_name')
              session_id = payload.get('session_id')
-@@ -927,6 +937,9 @@
+@@ -927,6 +902,7 @@
              litellm.drop_params = True
              # 設定をロードする
              runner_conf, agent_conf, llm_conf, mcpsv_confs, ds_conf = self.load_conf(runner_name, data_dir, logger)
-+            if any(c.get('mcpserver_auth_mode') == 'user_ap_binding' for c in mcpsv_confs):
-+                # ADK catches tool-load errors; reject unbound jobs BEFORE model execution.
-+                ap_gateway.require_ap_connection(trusted_actor)
++            ap_gateway.preflight_tools(mcpsv_confs, trusted_actor)
              agent_conf = self.prepare_agent_conf(agent_conf, payload)
              # Agentを作成する
              agent = self.create_agent(logger=logger, data_dir=data_dir, disable_remote_agent=False,
-@@ -936,13 +949,13 @@
+@@ -936,13 +912,13 @@
              session_service = self.create_session_service(logger=logger, data_dir=data_dir, ds_conf=ds_conf)
              # セッションを作成する
              agent_session = await self.create_agent_session(session_service=session_service, runner_name=runner_name,
@@ -95,7 +149,7 @@
              artifact_service = self.create_artifact_service(logger=logger, artifact_root_dir=artifact_root_dir)
              # Runnerを作成する
              runner = self._create_runner(logger=logger, data_dir=data_dir, runner_conf=runner_conf,
-@@ -957,7 +970,7 @@
+@@ -957,7 +933,7 @@
              chat_ctx = await self.before_chat_run(logger=logger, data_dir=data_dir, redis_cli=redis_cli,
                                                    payload=payload, agent_session=agent_session, reskey=reskey)
              await self._svrun_chat_exec(redis_cli, payload, runner, agent_session, content,
@@ -104,7 +158,7 @@
              st = await self.after_chat_run(logger=logger, data_dir=data_dir, redis_cli=redis_cli,
                                                   payload=payload, agent_session=agent_session,
                                                   reskey=reskey, chat_ctx=chat_ctx)
-@@ -1063,7 +1076,7 @@
+@@ -1063,7 +1039,7 @@
  
      async def _svrun_chat_exec(self, redis_cli:redis_client.RedisClient, payload:Dict[str, Any],
                                 runner:Any, agent_session:Any, content:Any,
@@ -113,7 +167,7 @@
          """
          チャットの実行を行います
  
-@@ -1089,100 +1102,102 @@
+@@ -1089,100 +1065,102 @@
          run_config = RunConfig(streaming_mode=StreamingMode.NONE)
          resval = []
          token_usage = dict(prompt_tokens=0, completion_tokens=0, total_tokens=0)
@@ -308,3 +362,55 @@
  
      @staticmethod
      def _to_primitive(value: Any) -> Any:
+--- a/cmdbox/app/features/cli/cmdbox_agent_session_list.py
++++ b/cmdbox/app/features/cli/cmdbox_agent_session_list.py
+@@ -1,3 +1,4 @@
++from cmdbox_gateway import integration as ap_gateway
+ from cmdbox.app import common, client
+ from cmdbox.app.commons import convert, redis_client, resdata, validator
+ from cmdbox.app.features.cli import cmdbox_agent_chat
+@@ -116,7 +117,7 @@
+             payload = json.loads(convert.b64str2str(msg[2]))
+             name = payload.get('runner_name')
+             session_id = payload.get('session_id')
+-            user_name = payload.get('user_name')
++            user_name = ap_gateway.verify_resource_job(payload, 'session_list')
+             _, _, _, _, ds_conf = self.load_conf(name, data_dir, logger)
+             session_service = self.create_session_service(logger=logger, data_dir=data_dir, ds_conf=ds_conf)
+             if session_id is None:
+@@ -151,6 +152,9 @@
+             out = dict(warn="Session listing is not implemented for this Runner.", end=True)
+             redis_cli.rpush(reskey, out)
+             return self.RESP_WARN
++        except ap_gateway.GatewayError as e:
++            redis_cli.rpush(reskey, dict(warn=dict(error=e.code), end=True))
++            return self.RESP_WARN
+         except Exception as e:
+             # それ以外のエラーが発生した時はログに出力して空リストを返す
+             logger.warning(f"list_agent_sessions warning: {e}", exc_info=True)
+--- a/cmdbox/app/features/cli/cmdbox_agent_session_del.py
++++ b/cmdbox/app/features/cli/cmdbox_agent_session_del.py
+@@ -1,3 +1,4 @@
++from cmdbox_gateway import integration as ap_gateway
+ from cmdbox.app import common, client
+ from cmdbox.app.commons import convert, redis_client, resdata, validator
+ from cmdbox.app.features.cli.agent import agant_base
+@@ -91,7 +92,7 @@
+             payload = json.loads(convert.b64str2str(msg[2]))
+             runner_name = payload.get('runner_name')
+             session_id = payload.get('session_id')
+-            user_name = payload.get('user_name')
++            user_name = ap_gateway.verify_resource_job(payload, 'session_del')
+ 
+             runner_conf, _, _, _, ds_conf = self.load_conf(runner_name, data_dir, logger)
+             session_service = self.create_session_service(logger=logger, data_dir=data_dir, ds_conf=ds_conf)
+@@ -106,6 +107,9 @@
+             redis_cli.rpush(reskey, msg)
+             return self.RESP_SUCCESS
+ 
++        except ap_gateway.GatewayError as e:
++            redis_cli.rpush(reskey, dict(warn=dict(error=e.code), end=True))
++            return self.RESP_WARN
+         except Exception as e:
+             logger.warning(f"Session delete failed: {e}", exc_info=True)
+             out = dict(warn=f"Session delete failed: {e}", end=True)

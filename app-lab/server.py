@@ -9,6 +9,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 import json
 import logging
+import os
 import threading
 import traceback
 
@@ -25,6 +26,13 @@ from cmdbox_gateway import integration
 from cmdbox_gateway.core import Binding, AuthorizedFlowBroker, WebJobIssuer, WorkerJobVerifier, RedisReplayGuard, GatewayError, canonical_uid
 from cmdbox_gateway.fixtures import DUMMY_KEY, FLOW_A, FLOW_B, DummyCredentials, DummyMcpTransport
 from storage import SyntheticSqliteBindings
+from lifecycle import FakeLifecycle
+from static_mock import StaticMockToolset
+from cmdbox_gateway.config import validate_tool_config
+from cmdbox.app.features.cli.cmdbox_agent_session_list import AgentSessionList
+from cmdbox.app.features.cli.cmdbox_agent_session_del import AgentSessionDel
+from cmdbox.app.features.web.cmdbox_web_users import Users
+from cmdbox.app.commons import convert
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import HTMLResponse
 from google.adk.agents import LlmAgent
@@ -40,7 +48,10 @@ import starsessions.middleware
 import uvicorn
 
 ROOT = environment.ROOT
-DATA = ROOT / 'data'
+DATA = environment.DATA
+PORT = int(os.environ.get('CMDBOX_LAB_WEB_PORT','18090'))
+if PORT not in (18090,18092): raise RuntimeError('Unconfigured lab listener')
+FAKE_LIFECYCLE = os.environ.get('CMDBOX_LAB_FAKE_LIFECYCLE','0') == '1'
 TRACE = ROOT / 'runtime-trace.jsonl'
 RUNNER = 'adapter_lab'
 REDIS_PORT = 18091
@@ -52,7 +63,7 @@ trace_lock = threading.Lock()
 def trace(stage, **metadata):
     with trace_lock:
         with TRACE.open('a', encoding='utf8') as file:
-            file.write(json.dumps({'at': datetime.now(timezone.utc).isoformat(), 'stage': stage, **metadata}) + '\n')
+            file.write(json.dumps({'at': datetime.now(timezone.utc).isoformat(), 'stage': stage, 'instance':PORT, **metadata}) + '\n')
 
 class LabApp:
     @classmethod
@@ -63,9 +74,9 @@ class FixedDummySessionHandler(starsessions.session.SessionHandler):
     async def save(self, remaining_time):
         if not self.session_id:
             uid = self.connection.session.get('signin', {}).get('uid')
-            if uid not in (101,202,303):
+            if uid not in (101,202,303,404):
                 raise RuntimeError('Dummy session must originate from public password login')
-            self.session_id = {101:'LITERAL_DUMMY_WEBSESSION_A',202:'LITERAL_DUMMY_WEBSESSION_B',303:'LITERAL_DUMMY_WEBSESSION_C'}[uid]
+            self.session_id = {101:'LITERAL_DUMMY_WEBSESSION_A',202:'LITERAL_DUMMY_WEBSESSION_B',303:'LITERAL_DUMMY_WEBSESSION_C',404:'LITERAL_DUMMY_WEBSESSION_D'}[uid]
         return await super().save(remaining_time)
 # Test-only ID injection: native starsessions RedisStore/autoload/save remain in use.
 # No cryptographic session token is generated. Never deploy this injection.
@@ -95,13 +106,14 @@ class LocalScriptedLlm(BaseLlm):
             content = types.Content(role='model', parts=[types.Part(text=json.dumps({'message': value.get('marker', value.get('error', 'unknown'))}))])
         else:
             names = list(llm_request.tools_dict)
-            if names != ['lab_identity']: raise RuntimeError('LOCAL MOCK model received an unapproved tool set')
+            if names not in (['lab_identity'],['shared_marker']): raise RuntimeError('LOCAL MOCK model received an unapproved tool set')
             trace('adk_model_declared_tools', tools=names)
-            content = types.Content(role='model', parts=[types.Part(function_call=types.FunctionCall(name='lab_identity', args={}))])
+            content = types.Content(role='model', parts=[types.Part(function_call=types.FunctionCall(name=names[0], args={}))])
         yield LlmResponse(content=content, usage_metadata=types.GenerateContentResponseUsageMetadata(
             prompt_token_count=0, candidates_token_count=0, total_token_count=0))
 
 class LabAgentChat(AgentChat):
+    mcp_toolset_factory = StaticMockToolset
     # Native apprun_generate/send_cmd_sse/svrun/session/run/serialization paths are inherited.
     def create_agent(self, *, logger, data_dir, disable_remote_agent, agent_conf, llm_conf, mcpsv_confs, payload):
         tools = self.create_tool_mcpsv(logger, mcpsv_confs, payload)
@@ -125,21 +137,26 @@ class TracedDoSignin(DoSignin):
         trace('public_password_login_succeeded', uid=user_session['uid'])
 
 def prepare_synthetic_data():
-    DATA.mkdir(exist_ok=True)
+    DATA.mkdir(parents=True,exist_ok=True)
     (DATA / '.users').mkdir(exist_ok=True)
     (DATA / '.agent').mkdir(exist_ok=True)
     configs = {
         'runner-adapter_lab.json': {'runner_name':RUNNER,'agent':'lab_agent'},
         'agent-lab_agent.json': {'agent_name':'lab_agent','agent_type':'local','mcpservers':['synthetic_gateway']},
         'mcpsv-synthetic_gateway.json': {'mcpserver_auth_mode':'user_ap_binding','mcpserver_mcp_tools':['lab_identity']},
+        'runner-adapter_static.json': {'runner_name':'adapter_static','agent':'static_agent'},
+        'agent-static_agent.json': {'agent_name':'static_agent','agent_type':'local','mcpservers':['static_dummy']},
+        'mcpsv-static_dummy.json': {'mcpserver_auth_mode':'static_api_key','mcpserver_mcp_tools':['shared_marker'],
+                                  'mcpserver_url':'https://static-tool.invalid/mcp','mcpserver_apikey':'LITERAL-DUMMY-COMMON'},
     }
     for name, value in configs.items():
         (DATA / '.agent' / name).write_text(json.dumps(value, indent=2) + '\n', encoding='utf8')
     signin = {
         'users':[{'uid':uid,'name':name,'password':'LITERAL_DUMMY_PASSWORD','hash':'plain',
-                  'groups':['lab'],'home':'homes/' + name,'email':name+'@invalid','apikeys':{}}
-                 for uid,name in ((101,'alice'),(202,'bob'),(303,'charlie'))],
-        'groups':[{'gid':1,'name':'lab','parent':None,'home':'groups/lab','startpage':'lab'}],
+                  'groups':['lab-admin' if uid==404 else 'lab'],'home':'homes/' + name,'email':name+'@invalid','apikeys':{}}
+                 for uid,name in ((101,'alice'),(202,'bob'),(303,'charlie'),(404,'dummy-admin'))],
+        'groups':[{'gid':1,'name':'lab','parent':None,'home':'groups/lab','startpage':'lab'},
+                  {'gid':2,'name':'lab-admin','parent':None,'home':'groups/admin','startpage':'lab'}],
         'pathrule':{'policy':'allow','rules':[]},
         'cmdrule':{'policy':'deny','rules':[]},
         'apikey':{'verify_jwt':{'enabled':False},'gen_cert':{'enabled':False},'gen_jwt':{'enabled':False}},
@@ -153,15 +170,17 @@ def prepare_synthetic_data():
 raw_redis = redis.Redis(host='127.0.0.1',port=REDIS_PORT,db=0,protocol=2)
 registry = SyntheticSqliteBindings(DATA / 'bindings.sqlite', [FLOW_A,FLOW_B])
 for uid, label, flow in (('101','A',FLOW_A),('202','B',FLOW_B)):
-    if registry.get_record(uid) is None:
+    if not FAKE_LIFECYCLE and registry.get_record(uid) is None:
         registry.bind(Binding(uid,'DUMMY-AP-SUBJECT-'+label,'DUMMY-PROJECT-'+label,'DUMMY-GRANT-'+label,'dummy-ref-'+label.lower(),1,flow))
-broker = AuthorizedFlowBroker(registry, DummyCredentials(), TracedDummyTransport())
+lifecycle = FakeLifecycle(registry)
+broker = AuthorizedFlowBroker(registry, lifecycle if FAKE_LIFECYCLE else DummyCredentials(), TracedDummyTransport())
 stop_worker = threading.Event(); worker_started = threading.Event()
 
 def worker_thread():
     async def run():
         redis_client = RedisClient(logger,host='127.0.0.1',port=REDIS_PORT,password=None,svname=SVNAME)
-        redis_client.redis_cli.hset('hb-cmdboxlab-worker', mapping={'status':'LOCAL_MOCK'})
+        heartbeat = 'hb-cmdboxlab-worker-'+str(PORT)
+        redis_client.redis_cli.hset(heartbeat, mapping={'status':'LOCAL_MOCK'})
         worker = LabAgentChat(LabApp,version,language='en_US')
         worker_started.set()
         trace('public_cmdbox_worker_started', queue='sv-cmdboxlab')
@@ -173,12 +192,19 @@ def worker_thread():
                 trace('native_redis_job_received', command=msg[0])
                 if msg[0] == 'agent_chat':
                     await worker.svrun(DATA,logger,redis_client,msg,{})
+                elif msg[0] in ('agent_session_list','agent_session_del'):
+                    cls = AgentSessionList if msg[0]=='agent_session_list' else AgentSessionDel
+                    class LocalResource(cls):
+                        def create_session_service(self, **kwargs):
+                            return worker.create_session_service(**kwargs)
+                    await LocalResource(LabApp,version).svrun(DATA,logger,redis_client,msg,{})
+                    trace('native_resource_worker_called',operation=msg[0])
                 elif msg[0] == 'limiter_plan_list':
                     redis_client.rpush(msg[1],{'success':{'data':[]},'end':True})
                 else:
                     redis_client.rpush(msg[1],{'warn':{'error':'unsupported_local_mock_command'},'end':True})
         finally:
-            redis_client.redis_cli.delete('hb-cmdboxlab-worker')
+            redis_client.redis_cli.delete(heartbeat)
             redis_client.close()
     asyncio.run(run())
 
@@ -187,8 +213,10 @@ async def lifespan(app):
     raw_redis.ping()
     # Separate nonce namespace and existing Redis connection; literal dummy signing key only.
     issuer = TracedIssuer(DUMMY_KEY, nonce_factory=lambda:'LITERAL_DUMMY_APP_NONCE_'+str(raw_redis.incr('lab:identity-nonce')))
-    verifier = TracedVerifier(DUMMY_KEY,RedisReplayGuard(raw_redis))
-    integration.install_web_runtime(issuer); integration.install_worker_runtime(verifier,broker)
+    guard = RedisReplayGuard(raw_redis)
+    verifier = TracedVerifier(DUMMY_KEY,guard)
+    configs = [json.loads(p.read_text(encoding='utf8')) for p in (DATA/'.agent').glob('mcpsv-*.json')]
+    integration.bootstrap(configs,issuer=issuer,verifier=verifier,broker=broker,shared_replay_guard=guard)
     thread = threading.Thread(target=worker_thread,daemon=True); thread.start()
     if not await asyncio.to_thread(worker_started.wait,10): raise RuntimeError('Mock worker failed to start')
     blocked = environment.install_socket_policy()
@@ -210,10 +238,31 @@ TracedDoSignin(LabApp,version,language='en_US').route(web,app)
 # Retain only the original password-login handlers; no OAuth/token/SAML routes.
 app.router.routes[:] = [r for r in app.router.routes if getattr(r,'path','') in ('/dosignin/','/dosignin/{next:path}')]
 LabWebAgent(LabApp,version,language='en_US').route(web,app)
+before_users = len(app.router.routes)
+Users(LabApp,version,language='en_US').route(web,app)
+# Register only read-only native admin handlers. Key issuance/mutation routes are absent.
+app.router.routes[before_users:] = [r for r in app.router.routes[before_users:] if r.path in ('/users/list','/groups/list')]
 async_redis = Redis(host='127.0.0.1',port=REDIS_PORT,db=0,protocol=2)
 app.add_middleware(SessionAutoloadMiddleware)
 app.add_middleware(SessionMiddleware,store=RedisStore(connection=async_redis,prefix='cmdboxlab:session:'),
                    lifetime=1800,rolling=True,cookie_https_only=False,cookie_name='lab_session')
+
+from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi.responses import JSONResponse
+class AdminReadGuard(BaseHTTPMiddleware):
+    async def dispatch(self, req, call_next):
+        if req.url.path in ('/users/list','/groups/list'):
+            if 'signin' not in req.session: return JSONResponse({'error':'login_required'},status_code=401)
+            if req.query_params: return JSONResponse({'error':'identity_selector_refused'},status_code=400)
+            if 'lab-admin' not in req.session['signin'].get('groups',[]):
+                return JSONResponse({'error':'admin_required'},status_code=403)
+        return await call_next(req)
+# Session middleware must execute before this guard.
+app.user_middleware.insert(2, __import__('starlette.middleware',fromlist=['Middleware']).Middleware(AdminReadGuard))
+
+@app.exception_handler(GatewayError)
+async def gateway_error(req, error):
+    return JSONResponse({'error':error.code},status_code=409)
 
 def authenticated_uid(req,res):
     if req.query_params:
@@ -230,6 +279,76 @@ def me(req:Request,res:Response):
     try: row = registry.resolve(uid); connection = row.status
     except GatewayError: connection = 'RECONNECT_REQUIRED'
     return {'uid':uid,'adk_user_id':'cmdbox_uid_'+uid,'connection':connection}
+
+def mutation_uid(req,res):
+    uid = authenticated_uid(req,res)
+    if req.headers.get('X-Lab-Intent') != 'LITERAL-DUMMY-CONNECTION':
+        raise HTTPException(403,'Explicit local dummy operation required')
+    origin = req.headers.get('origin')
+    if origin and origin != 'http://127.0.0.1:'+str(PORT): raise HTTPException(403,'Origin refused')
+    return uid
+
+@app.get('/lab/api/connection')
+def connection_status(req:Request,res:Response):
+    return lifecycle.status(authenticated_uid(req,res))
+@app.post('/lab/api/connection/{operation}')
+async def connection_operation(operation:str,req:Request,res:Response):
+    if not FAKE_LIFECYCLE: raise HTTPException(404,'Fake lifecycle not enabled')
+    uid = mutation_uid(req,res)
+    body = await req.json()
+    allowed = {'start':set(),'callback':{'state','code'},'refresh':{'generation'},'revoke':set()}
+    if operation not in allowed or type(body) is not dict or set(body)!=allowed[operation]:
+        raise HTTPException(400,'Unsupported fake operation fields')
+    session = req.cookies.get('lab_session','')
+    if operation=='start': result = await asyncio.to_thread(lifecycle.start,uid,session)
+    elif operation=='callback':
+        if not all(type(body[k]) is str for k in body): raise HTTPException(400,'String fields required')
+        result = await asyncio.to_thread(lifecycle.complete,uid,session,body['state'],body['code'])
+    elif operation=='refresh':
+        if type(body['generation']) is not int or body['generation']<1: raise HTTPException(400,'Generation required')
+        result = await asyncio.to_thread(lifecycle.renew,uid,body['generation'],force=True)
+    else: result = await asyncio.to_thread(lifecycle.revoke,uid)
+    trace('fake_connection_operation',uid=uid,operation=operation,generation=result.get('generation'))
+    return result
+
+async def native_resource(req,res,operation,session_id):
+    authenticated_uid(req,res)
+    payload = integration.attach_resource_job(req.session,operation,RUNNER,session_id)
+    result_key = 'lab:resource-result:'+str(raw_redis.incr('lab:resource-result-id'))
+    encoded = convert.str2b64str(common.to_str(payload))
+    raw_redis.rpush('sv-cmdboxlab','agent_'+operation+' '+result_key+' '+encoded)
+    reply = await asyncio.to_thread(raw_redis.blpop,result_key,30)
+    if reply is None: raise HTTPException(503,'Local worker unavailable')
+    return json.loads(reply[1])
+@app.get('/lab/api/native/sessions')
+async def native_sessions(req:Request,res:Response):
+    return await native_resource(req,res,'session_list',None)
+@app.get('/lab/api/native/history/{session_id}')
+async def native_history(session_id:str,req:Request,res:Response):
+    return await native_resource(req,res,'session_list',session_id)
+@app.delete('/lab/api/native/sessions/{session_id}')
+async def native_delete(session_id:str,req:Request,res:Response):
+    mutation_uid(req,res)
+    return await native_resource(req,res,'session_del',session_id)
+
+def artifact_service(uid):
+    return LabAgentChat(LabApp,version).create_artifact_service(logger=logger,
+        artifact_root_dir=DATA/'.users'/('cmdbox_uid_'+uid)/'artifacts'/RUNNER)
+@app.get('/lab/api/artifacts/{session_id}')
+async def artifacts(session_id:str,req:Request,res:Response):
+    uid = authenticated_uid(req,res)
+    import re
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,100}',session_id): raise HTTPException(400,'Invalid artifact identifier')
+    return {'files':await artifact_service(uid).list_artifact_keys(app_name=RUNNER,user_id='cmdbox_uid_'+uid,session_id=session_id)}
+@app.get('/lab/api/artifacts/{session_id}/{filename}')
+async def artifact(session_id:str,filename:str,req:Request,res:Response):
+    uid = authenticated_uid(req,res)
+    import re
+    if not re.fullmatch(r'[A-Za-z0-9_-]{1,100}',session_id) or not re.fullmatch(r'[A-Za-z0-9_-]{1,100}\.txt',filename):
+        raise HTTPException(400,'Invalid artifact identifier')
+    part = await artifact_service(uid).load_artifact(app_name=RUNNER,user_id='cmdbox_uid_'+uid,session_id=session_id,filename=filename)
+    if part is None: raise HTTPException(404,'Artifact not found')
+    return {'text':part.text}
 @app.get('/lab/api/sessions')
 async def list_sessions(req:Request,res:Response):
     uid = authenticated_uid(req,res); worker = LabAgentChat(LabApp,version)
@@ -256,7 +375,7 @@ def landing():
     return '<h1>Public cmdbox LOCAL MOCK</h1><p>Literal dummy users only. Real OAuth and external services are disabled.</p>'
 
 if __name__ == '__main__':
-    config = uvicorn.Config(app,host='127.0.0.1',port=18090,ws='wsproto',log_level='warning',access_log=False)
+    config = uvicorn.Config(app,host='127.0.0.1',port=PORT,ws='wsproto',log_level='warning',access_log=False)
     server = uvicorn.Server(config)
     def stdin_control():
         for line in sys.stdin:

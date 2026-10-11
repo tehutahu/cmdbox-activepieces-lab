@@ -1,5 +1,7 @@
 # 上流と依存ライセンス
 
+継続検証では任意のcorrectness lintにRuff 0.14.0（wheel metadataのMIT宣言）を追加しました。`lint-requirements.lock`でofficial PyPIのWindows amd64 wheel hashを固定し、ignored専用runtimeにのみ取得します。binaryはvendorしません。既存runtime118 packageのinventoryと独自lab licenseの未選択状態は変えません。
+
 cmdbox patchには公開MITコードの文脈を含むため、[固定commitのlicense](https://github.com/hamacom2004jp/cmdbox/blob/a429260512035aa358d49e7b319c2bfc56532742/LICENSE)を`third-party/cmdbox-LICENSE.txt`へ保持しました。
 
 Activepiecesは[固定commitのlicense](https://github.com/activepieces/activepieces/blob/d125d34e59ac57ea4d0df57af4b917344027f06b/LICENSE)で、CE領域のMITとEnterprise領域の別licenseを区別します。EE codeや公式piece packageはvendorしていません。Docker imageを自己のlicenseとして再配布する構成でもありません。

@@ -1,0 +1,832 @@
+{
+  "cmdboxPin": "a429260512035aa358d49e7b319c2bfc56532742",
+  "routes": [
+    {
+      "file": "cmdbox_web_agent.py",
+      "method": "get",
+      "path": "/agent",
+      "localMock": "native-agent-landing"
+    },
+    {
+      "file": "cmdbox_web_agent.py",
+      "method": "post",
+      "path": "/agent",
+      "localMock": "native-agent-landing"
+    },
+    {
+      "file": "cmdbox_web_agent.py",
+      "method": "websocket",
+      "path": "/{webapp}/chat/ws/{runner_name}",
+      "localMock": "signed-UID-chat"
+    },
+    {
+      "file": "cmdbox_web_agent.py",
+      "method": "websocket",
+      "path": "/{webapp}/chat/ws/{runner_name}/{session_id}",
+      "localMock": "signed-UID-chat"
+    },
+    {
+      "file": "cmdbox_web_audit.py",
+      "method": "get",
+      "path": "/audit",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit.py",
+      "method": "post",
+      "path": "/audit",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit.py",
+      "method": "post",
+      "path": "/audit/rawlog",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit.py",
+      "method": "get",
+      "path": "/audit/mode_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit.py",
+      "method": "post",
+      "path": "/audit/write",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit_metrics.py",
+      "method": "post",
+      "path": "/audit/metrics/save",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit_metrics.py",
+      "method": "post",
+      "path": "/audit/metrics/load",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit_metrics.py",
+      "method": "post",
+      "path": "/audit/metrics/delete",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_audit_metrics.py",
+      "method": "post",
+      "path": "/audit/metrics/list",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_bbforce_cmd.py",
+      "method": "get",
+      "path": "/bbforce_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_copyright.py",
+      "method": "get",
+      "path": "/copyright",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_del_cmd.py",
+      "method": "post",
+      "path": "/gui/del_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_del_pipe.py",
+      "method": "post",
+      "path": "/gui/del_pipe",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "post",
+      "path": "/dosignin/",
+      "localMock": "native-password-login-only"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "post",
+      "path": "/dosignin/{next:path}",
+      "localMock": "native-password-login-only"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/dosignin_token/{token}/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/oauth2/google/callback",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/oauth2/google/session/{access_token}/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/oauth2/github/callback",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/oauth2/github/session/{access_token}/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/oauth2/azure/callback",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/oauth2/azure/session/{access_token}/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "post",
+      "path": "/saml/azure/callback",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signin.py",
+      "method": "get",
+      "path": "/saml/azure/session/{saml_token}/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signout.py",
+      "method": "api_route",
+      "path": "/dosignout/{next}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_do_signout.py",
+      "method": "api_route",
+      "path": "/{full_path:path}/dosignout/{next}/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_exec_cmd.py",
+      "method": "post",
+      "path": "/exec_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_exec_cmd.py",
+      "method": "get",
+      "path": "/exec_cmd/{title}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_exec_cmd.py",
+      "method": "post",
+      "path": "/exec_cmd/{title}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_exec_cmd.py",
+      "method": "get",
+      "path": "/exec_sse_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_exec_cmd.py",
+      "method": "get",
+      "path": "/exec_sse_cmd/{title}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_exec_pipe.py",
+      "method": "get",
+      "path": "/exec_pipe/{title}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_exec_pipe.py",
+      "method": "post",
+      "path": "/exec_pipe/{title}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_filer.py",
+      "method": "get",
+      "path": "/filer",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_filer.py",
+      "method": "post",
+      "path": "/filer",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_filer_download.py",
+      "method": "get",
+      "path": "/filer/download/{constr:str}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_filer_upload.py",
+      "method": "post",
+      "path": "/filer/upload",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_get_cmd_choices.py",
+      "method": "post",
+      "path": "/gui/get_cmd_choices",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_get_cmds.py",
+      "method": "post",
+      "path": "/gui/get_cmds",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_get_modes.py",
+      "method": "get",
+      "path": "/gui/get_modes",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_get_server_opt.py",
+      "method": "get",
+      "path": "/get_server_opt",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "post",
+      "path": "/gui",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/signin/gui/appid",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/appid",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/signin/gui/title",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/title",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/version_info",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/user_info",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/filemenu",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/toolmenu",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/viewmenu",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui.py",
+      "method": "get",
+      "path": "/gui/aboutmenu",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui_callback.py",
+      "method": "websocket",
+      "path": "/gui/callback",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_gui_callback.py",
+      "method": "websocket",
+      "path": "/result/callback",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_limiter.py",
+      "method": "get",
+      "path": "/limiter",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_limiter.py",
+      "method": "post",
+      "path": "/limiter",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_list_cmd.py",
+      "method": "post",
+      "path": "/gui/list_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_list_pipe.py",
+      "method": "post",
+      "path": "/gui/list_pipe",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_load_cmd.py",
+      "method": "post",
+      "path": "/gui/load_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_load_pipe.py",
+      "method": "post",
+      "path": "/gui/load_pipe",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_raw_cmd.py",
+      "method": "post",
+      "path": "/gui/raw_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_raw_pipe.py",
+      "method": "post",
+      "path": "/gui/raw_pipe",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_result.py",
+      "method": "post",
+      "path": "/result/pub",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_result.py",
+      "method": "post",
+      "path": "/result",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_result.py",
+      "method": "get",
+      "path": "/result",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_save_cmd.py",
+      "method": "post",
+      "path": "/gui/save_cmd",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_save_pipe.py",
+      "method": "post",
+      "path": "/gui/save_pipe",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "api_route",
+      "path": "/signin/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "api_route",
+      "path": "/{full_path:path}/signin/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "api_route",
+      "path": "/signin/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "api_route",
+      "path": "/{full_path:path}/signin/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/oauth2/google/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/oauth2/google/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/oauth2/github/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/oauth2/github/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/oauth2/azure/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/oauth2/azure/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/oauth2/enabled",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/saml/{prov}/",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/saml/{prov}/{next:path}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "get",
+      "path": "/saml/enabled",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_signin.py",
+      "method": "post",
+      "path": "/signin_translation/{target_lang}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_status.py",
+      "method": "get",
+      "path": "/status",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_status.py",
+      "method": "post",
+      "path": "/status",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_url.py",
+      "method": "get",
+      "path": "/ru/{url_id}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_url.py",
+      "method": "post",
+      "path": "/ru/{url_id}",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "post",
+      "path": "/gui/user_data/load",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "post",
+      "path": "/signin/gui/user_data/load",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "post",
+      "path": "/gui/user_data/save",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "post",
+      "path": "/signin/gui/user_data/save",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "post",
+      "path": "/gui/user_data/delete",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "post",
+      "path": "/signin/gui/user_data/delete",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "get",
+      "path": "/gui/user_data/icon",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_user_data.py",
+      "method": "post",
+      "path": "/signin/gui/user_data/icon",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "get",
+      "path": "/users",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/users",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "get",
+      "path": "/users/list",
+      "localMock": "native-admin-read-with-lab-role-guard"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/users/add",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/users/edit",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/users/del",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/gui/apikey/add",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/users/apikey/add",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/gui/apikey/del",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/users/apikey/del",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "get",
+      "path": "/groups/list",
+      "localMock": "native-admin-read-with-lab-role-guard"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/groups/add",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/groups/edit",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/groups/del",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "get",
+      "path": "/cmdrules/list",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "get",
+      "path": "/pathrules/list",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "get",
+      "path": "/passsetting/list",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_users.py",
+      "method": "post",
+      "path": "/password/change",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_usesignout.py",
+      "method": "get",
+      "path": "/usesignout",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_usesignout.py",
+      "method": "get",
+      "path": "/signin/usesignout",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_versions_cmdbox.py",
+      "method": "get",
+      "path": "/versions",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_versions_cmdbox.py",
+      "method": "get",
+      "path": "/versions_cmdbox",
+      "localMock": "not-mounted-in-local-mock"
+    },
+    {
+      "file": "cmdbox_web_versions_cmdbox.py",
+      "method": "get",
+      "path": "/versions_used",
+      "localMock": "not-mounted-in-local-mock"
+    }
+  ],
+  "agentCommands": [
+    {
+      "file": "cmdbox_agent_agent_del.py",
+      "command": "agent_del",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_agent_list.py",
+      "command": "agent_list",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_agent_load.py",
+      "command": "agent_load",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_agent_save.py",
+      "command": "agent_save",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_chat.py",
+      "command": "chat",
+      "localMock": "signed-UID-native-worker"
+    },
+    {
+      "file": "cmdbox_agent_mcp_client.py",
+      "command": "mcp_client",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_mcp_proxy.py",
+      "command": "mcp_proxy",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_mcpsv_del.py",
+      "command": "mcpsv_del",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_mcpsv_list.py",
+      "command": "mcpsv_list",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_mcpsv_load.py",
+      "command": "mcpsv_load",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_mcpsv_save.py",
+      "command": "mcpsv_save",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_runner_del.py",
+      "command": "runner_del",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_runner_list.py",
+      "command": "runner_list",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_runner_load.py",
+      "command": "runner_load",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_runner_save.py",
+      "command": "runner_save",
+      "localMock": "not-dispatched-in-local-mock"
+    },
+    {
+      "file": "cmdbox_agent_session_del.py",
+      "command": "session_del",
+      "localMock": "signed-UID-native-worker"
+    },
+    {
+      "file": "cmdbox_agent_session_list.py",
+      "command": "session_list",
+      "localMock": "signed-UID-native-worker"
+    }
+  ],
+  "artifactNote": "No dedicated native artifact REST route in this pin. Generic filer/exec routes are not mounted; added lab endpoints use real ADK FileArtifactService with server-selected UID root.",
+  "limits": "Source inventory plus dummy tests of selected native handlers and unmounted route groups; not a full standard UI audit or proof of upstream-wide ACL."
+}

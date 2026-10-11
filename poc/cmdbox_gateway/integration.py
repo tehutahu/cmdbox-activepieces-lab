@@ -48,3 +48,30 @@ def approved_ap_toolset():
 def require_ap_connection(actor):
     require(_broker is not None, 'ap_broker_runtime_not_configured')
     _broker.require_actor_connection(actor)
+
+def preflight_tools(configs, actor):
+    from .config import validate_tool_config, UID_MODE
+    for config in configs:
+        if validate_tool_config(config) == UID_MODE:
+            require_ap_connection(actor)
+
+def bootstrap(configs, *, issuer, verifier, broker, shared_replay_guard):
+    from .config import validate_bootstrap
+    # Validate the complete configuration before installing either runtime.
+    validate_bootstrap(configs, issuer=issuer, verifier=verifier, broker=broker,
+                       shared_replay_guard=shared_replay_guard)
+    install_web_runtime(issuer)
+    install_worker_runtime(verifier, broker)
+
+def attach_resource_job(server_session, operation, runner_name, session_id):
+    require(operation in ('session_list', 'session_del'), 'resource_operation_not_allowed')
+    # Reuse the signed queue envelope and replay namespace; operation is signed too.
+    payload = dict(runner_name=runner_name,user_name='server-selected',session_id=session_id,
+                   message='RESOURCE:' + operation,call_tts=False,reasoning_effort='off',
+                   mcpserver_apikey=None,a2asv_apikey=None)
+    return attach_verified_web_job(server_session, payload)
+
+def verify_resource_job(payload, operation):
+    actor = verify_worker_job(payload)
+    require(actor is not None and payload.get('message') == 'RESOURCE:' + operation, 'signed_resource_job_required')
+    return actor.adk_user_id

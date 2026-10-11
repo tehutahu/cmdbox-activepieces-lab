@@ -1,5 +1,7 @@
 # UID単位の実行設計
 
+追加設計: [継続検証](CONTINUATION.md)でstatic/UID明示schemaとbootstrap、session-bound fake lifecycle、共有SQLite generationとRedis guard、署名付き標準session workerを実装しました。fake token providerはworker preflightでrefreshし、各tool実行と戻り値でgenerationを再検証します。実AP transport/OAuth/vaultへの接続は引き続き未実施です。
+
 前提は既存のWebログインと安定したユーザーIDです。clientやLLMにUID/project/tokenを選ばせず、check_signin後のserver sessionからUIDを取り、署名・120秒TTL・payload digest・nonce付きRedis jobでworkerへ伝えます。workerで署名とshared Redis SET NX EXを検証し、ADK session/run/artifactの主体を`cmdbox_uid_<UID>`へ統一します。
 
 ```mermaid

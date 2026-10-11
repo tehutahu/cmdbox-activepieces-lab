@@ -1,5 +1,7 @@
 # 検証レポート
 
+追加検証: offline32 unit/integration + 実ADK dummy7、既存実アプリ11、[継続12 scenario group](CONTINUATION.md)が通過しました。2つのWeb/worker processで実Redis共有guard・lifecycle競合・native resource APIを確認しています。[集約結果](continuation-summary.json)。以下は公開baseline時点の既存記録です。
+
 2026-10-11、固定版を使ったWindowsローカル検証。非公開業務アプリ、Google/Slackの実credential、業務data、外部LLM inferenceは使っていません。実AP試験の生証跡は元の非公開検証workspaceに保持し、この公開candidateには集約結果だけを載せます。
 
 ## 過去の実AP CE / MCP試験

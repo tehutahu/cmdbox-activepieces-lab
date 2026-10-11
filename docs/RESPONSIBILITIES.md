@@ -1,5 +1,7 @@
 # 誰が何を準備・実装するか
 
+更新: アプリ提供者側のlocal/mock責務は[継続検証](CONTINUATION.md)へ進みました。fake connect/callback/refresh/revoke、共有process guard、合成履歴移行、選択したnative API認可を確認しています。下記の実AP/実provider OAuth・本番credential/vault・企業policyの責務はこのfake検証で完了しません。
+
 ## 結論
 
 APを「ユーザー別のConnectionを持つflow実行基盤」として利用する案は、CE0.92.2の合成flowと本人認可で検証できました。APがDrive/Slack credentialを保持しても、アプリUIDと本人AP subject/project/grantの対応、AP token lifecycle、許可toolの制御は残ります。共通の管理者Bearerを全利用者へ流用する設計は推奨しません。
