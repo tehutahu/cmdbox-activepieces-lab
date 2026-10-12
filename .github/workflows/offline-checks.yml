@@ -1,0 +1,39 @@
+name: Offline public checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  offline:
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Hash-pinned runtime and public dependencies
+        run: |
+          ./Setup-ADK.ps1
+          ./app-lab/Setup-AppLab.ps1
+          ./tools/Fetch-PublicSources.ps1
+          ./runtimes/python312/python.exe -B -X utf8 tools/prepare_cmdbox_copy.py
+          if ($LASTEXITCODE -ne 0) { throw 'Public copy preparation failed' }
+      - name: Hash-pinned correctness linter
+        run: |
+          ./runtimes/python312/python.exe -X utf8 -m pip install --require-hashes --no-deps --only-binary=:all: --target runtimes/lint-deps -r lint-requirements.lock
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned lint dependency setup failed' }
+      - name: In-process dummy contracts and actual ADK scripted exercise
+        run: |
+          ./runtimes/python312/python.exe -B -X utf8 poc/run_mock_tests.py
+          if ($LASTEXITCODE -ne 0) { throw 'Offline contracts failed' }
+      - name: Static lint, patch, template, docs and public history
+        run: |
+          $checks = @('tools/lint_public.py','tools/check_stock_plan.py','tools/check_docs.py','tools/scan_public_candidate.py')
+          foreach ($check in $checks) {
+            ./runtimes/python312/python.exe -B -X utf8 $check
+            if ($LASTEXITCODE -ne 0) { throw "Static check failed: $check" }
+          }

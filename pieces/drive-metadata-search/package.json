@@ -1,0 +1,18 @@
+{
+  "name": "@cmdbox-lab/piece-drive-metadata-search",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "description": "Review-only independent Drive metadata readonly search piece",
+  "files": ["src/index.js", "THIRD-PARTY-NOTICES.txt"],
+  "dependencies": {},
+  "engines": {"node": ">=20"},
+  "cmdboxLab": {
+    "buildFromSource": true,
+    "activepiecesCommit": "d125d34e59ac57ea4d0df57af4b917344027f06b",
+    "frameworkVersion": "0.40.0",
+    "apRelease": "0.92.2",
+    "liveInstallAuthorized": false,
+    "labLicense": "UNSELECTED"
+  }
+}

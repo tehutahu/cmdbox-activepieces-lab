@@ -219,5 +219,8 @@
     ],
     "serverProcessesStopped": true,
     "forbiddenSocketAttempts": 0
-  }
+  },
+  "recordScope": "PUBLIC-BASELINE-SNAPSHOT-WITH-CURRENT-E2E-LINK",
+  "currentSummary": "google-drive-e2e-summary.json",
+  "actualProviderCredentialUsedLatest": true
 }

@@ -1,0 +1,173 @@
+{
+  "status": "CATALOG-SYNC-COMPLETED-AND-RESTORED",
+  "apVersion": "0.92.2",
+  "sourceCommit": "d125d34e59ac57ea4d0df57af4b917344027f06b",
+  "standardSyncCompleted": true,
+  "officialRegistryCandidates": 13475,
+  "metadataRowsBeforeFirstRun": 2,
+  "metadataRowsBeforeFinalRun": 13361,
+  "metadataRowsAfter": 13475,
+  "finalRunAdded": 114,
+  "finalRunRemoved": 0,
+  "totalMetadataVersionsAdded": 13473,
+  "globalOfficialVersionCount": 13473,
+  "legacyScopedVersionsPreserved": 2,
+  "remainingCandidatesForStandardSync": 0,
+  "visiblePieceKinds": 770,
+  "startupAndPeriodicSyncOverlap": true,
+  "completedSyncRuns": 2,
+  "addedByCompletedRuns": [
+    63,
+    51
+  ],
+  "fetchFailures": 0,
+  "beforeAndAfterDatabaseRestoreVerified": true,
+  "verificationNetwork": "none",
+  "pgliteVersion": "0.3.14",
+  "databaseTablesChecked": 81,
+  "unchangedTableHashes": 79,
+  "protectedTablesUnchanged": {
+    "flow": true,
+    "flow_version": true,
+    "app_connection": true,
+    "project": true,
+    "user": true,
+    "user_identity": true,
+    "platform": true,
+    "mcp_server": true,
+    "mcp_oauth_client": true,
+    "mcp_oauth_token": true,
+    "mcp_oauth_authorization_code": true,
+    "oauth_app": true,
+    "signing_key": true,
+    "api_key": true,
+    "file": true,
+    "folder": true,
+    "variable": true
+  },
+  "projectRoleChangedFields": [
+    "updated"
+  ],
+  "projectRoleIdsAndPermissionsUnchanged": true,
+  "existingFlowCount": 2,
+  "existingFlowVersionCount": 2,
+  "existingConnectionCount": 0,
+  "existingPublicClient": {
+    "present": true,
+    "authMethod": "none",
+    "callbackMatches": true,
+    "noClientSecret": true
+  },
+  "driveFixedVersion": "0.11.0",
+  "driveClassification": {
+    "pieceType": "OFFICIAL",
+    "packageType": "REGISTRY",
+    "platformScoped": false
+  },
+  "driveLatestVisibleVersion": "0.11.3",
+  "abPublicProjectSpecifiedMetadata": [
+    {
+      "bindingLabel": "app-a",
+      "principal": "public-UNKNOWN-not-authenticated-user",
+      "projectSpecifiedPublicCatalogStatus": 200,
+      "driveVisible": true,
+      "driveFixedMetadataStatus": 200,
+      "driveFixedVersion": "0.11.0",
+      "pieceType": "OFFICIAL",
+      "packageType": "REGISTRY",
+      "oauthScopeChoices": [
+        [
+          "https://www.googleapis.com/auth/drive",
+          "email"
+        ]
+      ]
+    },
+    {
+      "bindingLabel": "app-b",
+      "principal": "public-UNKNOWN-not-authenticated-user",
+      "projectSpecifiedPublicCatalogStatus": 200,
+      "driveVisible": true,
+      "driveFixedMetadataStatus": 200,
+      "driveFixedVersion": "0.11.0",
+      "pieceType": "OFFICIAL",
+      "packageType": "REGISTRY",
+      "oauthScopeChoices": [
+        [
+          "https://www.googleapis.com/auth/drive",
+          "email"
+        ]
+      ]
+    }
+  ],
+  "cloudAuthEnabled": false,
+  "platformOAuthOverridesCount": 0,
+  "googleRedirect": "http://localhost:18088/redirect",
+  "mcpFixedVersion": "0.0.21",
+  "mcpLegacyClassification": {
+    "pieceType": "CUSTOM",
+    "packageType": "ARCHIVE",
+    "platformScoped": true,
+    "preserved": true
+  },
+  "mcpGlobalFixedMetadataStatus": 404,
+  "mcpGlobalLatestVersion": "0.0.20",
+  "mcpLegacyScopeMatrix": [
+    {
+      "bindingLabel": "app-a",
+      "matchingRows": 1,
+      "checks": [
+        {
+          "legacyMcpMatchesProjectPlatform": true,
+          "subjectMatchesProjectPlatform": true,
+          "pieceType": "CUSTOM",
+          "packageType": "ARCHIVE"
+        }
+      ]
+    },
+    {
+      "bindingLabel": "app-b",
+      "matchingRows": 1,
+      "checks": [
+        {
+          "legacyMcpMatchesProjectPlatform": true,
+          "subjectMatchesProjectPlatform": true,
+          "pieceType": "CUSTOM",
+          "packageType": "ARCHIVE"
+        }
+      ]
+    }
+  ],
+  "mcpMetadataResolutionConditionsSatisfiedForBothSubjects": true,
+  "mcpGlobal404AloneBlocksDriveConnection": false,
+  "authenticatedABViewsVerified": false,
+  "existingOwnerSessionJwtUsed": false,
+  "automaticReviewRejection": {
+    "action": "extract existing owner session JWT and reuse it for authenticated local catalog/flags GET",
+    "executed": false,
+    "explicitSessionSecretUseApprovalRequired": true
+  },
+  "apRunningHealthy": true,
+  "syncModeRestored": "NONE",
+  "originalEnvironmentMapRestored": true,
+  "originalExtraHostsAndNetworksRestored": true,
+  "ownedHelperOriginalSettingsWithCurrentApReference": true,
+  "temporaryRelayAndBothBridgesRemoved": true,
+  "postRestoreCatalogFetch": {
+    "httpReached": false,
+    "causeCode": "EAI_AGAIN",
+    "scope": "one previously approved public catalog HTTPS URL"
+  },
+  "googleContactedOrDriveExecuted": false,
+  "newClientGrantOrProviderCredentialCreated": false,
+  "existingFlowRegistrationChanged": false,
+  "stoppedInternalBoundaryProbesRestored": false,
+  "commitPushOrPrCreated": false,
+  "privateIdentifiersOrSecretsIncluded": false,
+  "testDataIdsReceived": false,
+  "longRunningRecoveryCommandRemaining": false,
+  "remaining": [
+    "Human UI verification or explicitly authorized authenticated metadata GET",
+    "Separately authorized provider credentials/Google and AP human consent, owned flow/Connection, required runtime dependency acquisition and Google egress",
+    "Production packaging policy for legacy scoped MCP archive; no deletion required solely by anonymous global404"
+  ]
+}

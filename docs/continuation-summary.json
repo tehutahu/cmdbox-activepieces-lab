@@ -30,5 +30,7 @@
     "Static native config/header plus in-process dummy factory and actual ADK; no real static MCP socket or static-only Web bootstrap",
     "Selected native resource/admin handlers and unmounted-route tests; not full standard UI ACL proof",
     "Offline synthetic ADK2.8 SQLite migration; no actual histories or legacy filesystem artifacts"
-  ]
+  ],
+  "recordScope":"PHASE1_LOCAL_MOCK_SNAPSHOT",
+  "currentSummary":"phase2-validation-summary.json"
 }

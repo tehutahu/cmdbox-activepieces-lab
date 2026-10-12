@@ -8,4 +8,12 @@ bind mountは例として`./app-lab/redis-proxy.conf`をhostから読み取り�
 
 `app-lab/data/`のbinding/historyはhost SQLite、RedisはRDB/AOFを無効にした合成stateです。11件はapp再起動の永続化を検証しますが、Redis container再作成後のcookie維持を保証するものではありません。APのvolume移行やsecret初期化をこのmock移行と混同しません。
 
-C drive整理は、新しいprojectで再現が成功した後、停止済みの専用生成環境/cacheだけを別の非公開archiveへ退避する案です。原clone・証跡、稼働中DockerのC側bind source、shared/global依存は当面保持します。恒久削除・全体清掃・Docker disk移動は行いません。実個人path、disk容量、volume IDは公開資料に含めません。
+C drive整理は、新しいprojectで再現が成功した後、停止済みの専用生成環境/cacheだけを別の非公開archiveへ退避する案です。原clone・証跡、稼働中DockerのC側bind source、shared/global依存は当面保持します。この配置/移行手順で恒久削除・全体清掃・Docker disk移動は行いません。実個人path、disk容量、volume IDは公開資料に含めません。
+
+## Phase2の専用秘密と終了時の保持
+
+本人承認の実試験では、ignored private rootにCurrentUser+SYSTEMだけの保護ACLを設け、application秘密四件とAP tokenをCurrentUser DPAPIで保管しました。provider credential、AP client secret、新API keyは作成していません。これをproduction secret managerの代替保証とはしません。
+
+A/B本人UI witness完了と専用停止・秘密削除の明示承認後、application秘密の設定file、専用signin cache、runtime process内のauthorityを除去しました。専用vaultは古いtokenページを圧縮し、現行recordのtoken参照、pending/lease/cleanupをゼロとして確認しました。正式確認auditと非secret照合metadata、サニタイズ済みsummaryは保持しています。metadata自体の実AP識別子もGitへ入れません。
+
+秘密不在の確認は現行の専用file/DB/cache/processに限ります。ディスク復旧領域、OS cache、本人ChromeのAP login sessionまで消去した証明ではありません。Docker全体、AP本体、既存client/owner bootstrap、volume、他taskのruntimeは変更していません。

@@ -1,0 +1,33 @@
+{
+  "schema": "metadata-drive-registration-v1",
+  "enabled": false,
+  "alias": "lab_drive_metadata_search",
+  "piece": {
+    "name": "@cmdbox-lab/piece-drive-metadata-search",
+    "version": "0.1.0",
+    "action": "search_folder_metadata",
+    "scope": "https://www.googleapis.com/auth/drive.metadata.readonly"
+  },
+  "bindings": [
+    {
+      "uid": "101",
+      "subject": "DUMMY-AP-SUBJECT-A",
+      "project_id": "DUMMY-PROJECT-A",
+      "flow_id": "DUMMY-FLOW-A",
+      "raw_name": "lab_drive_metadata_search_a_dummy_mcp",
+      "policy_id": "DUMMY-METADATA-POLICY-A",
+      "folder_id": "DUMMY_FOLDER_A",
+      "term": "CMDBOX_LAB_ONLY"
+    },
+    {
+      "uid": "202",
+      "subject": "DUMMY-AP-SUBJECT-B",
+      "project_id": "DUMMY-PROJECT-B",
+      "flow_id": "DUMMY-FLOW-B",
+      "raw_name": "lab_drive_metadata_search_b_dummy_mcp",
+      "policy_id": "DUMMY-METADATA-POLICY-B",
+      "folder_id": "DUMMY_FOLDER_B",
+      "term": "CMDBOX_LAB_ONLY"
+    }
+  ]
+}

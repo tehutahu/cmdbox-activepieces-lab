@@ -1,0 +1,117 @@
+{
+  "recordScope": "PHASE2_CURRENT_AFTER_APPROVED_AB_TEST_AND_TEARDOWN",
+  "validationDateUtc": "2026-10-11",
+  "validationDateJst": "2026-10-12",
+  "status": "pass",
+  "phase1PublicCommit": "7f34def5574524a892a9b937edd2e6e64296547f",
+  "phase2Published": false,
+  "pinned": {
+    "cmdbox": "0.8.5.4",
+    "activepiecesCe": "0.92.2",
+    "googleAdk": "2.8.0",
+    "pythonMcp": "1.26.0"
+  },
+  "mock": {
+    "wholeRegressionUnitTests": 67,
+    "liveContractUnitTestsIncluded": 16,
+    "cleanupContractUnitTestsIncluded": 19,
+    "actualAdkOfflineDummyScenarios": 7,
+    "nativeMockScenarios": 4,
+    "nativeEntryCallbackMockScenarios": 4,
+    "cleanupNativeCases": 3,
+    "cleanupNativeOutcomeGroups": 5,
+    "countSemantics": "Overlapping unit/scenario coverage, not an additive count of independent features",
+    "actualApContacted": false,
+    "realProviderCredentialsUsed": false
+  },
+  "actualAp": {
+    "newAdapterConnected": true,
+    "approvedSubjectCount": 2,
+    "subjectsAreSyntheticLabAccounts": true,
+    "nativeWebRedisWorkerAdkOfficialMcpSdkPath": true,
+    "model": "Local scripted BaseLlm",
+    "perSubject": {
+      "authorizationCodeExchange": 1,
+      "refresh": 1,
+      "ownSyntheticFlowCalls": 2,
+      "ownMarkerOnly": true,
+      "generationBeforeRevoke": [
+        1,
+        2
+      ],
+      "generationAfterRevoke": 3,
+      "normalRevokeHttp200Submitted": true,
+      "nativePostRevokeRefused": true,
+      "noExtraFlowRefreshOrRetry": true
+    },
+    "executionOrder": "A revoked and formally confirmed before B; not simultaneous real-AP concurrency",
+    "subjectProjectClientGrantVerified": true,
+    "apUserinfoAuthenticatesSameTokenBeforeClaimChecks": true,
+    "localHs256SignatureVerificationClaimed": false,
+    "newApClientOrApiKeyCreated": false,
+    "providerCredentialsUsed": false,
+    "productionLlmUsed": false,
+    "oldApTokenRejectionProbeExecuted": false
+  },
+  "formalCleanup": {
+    "mode": "MANUAL-AP-UI-WITNESS",
+    "confirmedCount": 2,
+    "knownGrantMatchesAudit": true,
+    "completePagesPerSubject": 1,
+    "cleanupPendingCount": 0,
+    "formalProofPendingCount": 0,
+    "pendingStateCount": 0,
+    "leaseCount": 0,
+    "operatorBlocked": false,
+    "apUserBrowserCredentialsTransferred": false,
+    "responsesInvented": false,
+    "automaticApUserApiAuthentication": false,
+    "pastedResponseOriginCryptographicallyProven": false,
+    "physicalApRecordDeletionClaimed": false,
+    "allPlatformGrantAbsenceClaimed": false
+  },
+  "teardown": {
+    "explicitOwnerActionTimePermission": true,
+    "ownedProcessAndWorkerStopped": true,
+    "listenerCountClosed": 2,
+    "applicationSecretsRemoved": 4,
+    "applicationSettingsRemoved": true,
+    "ownedSigninHashCacheRemoved": true,
+    "ownedHeartbeatRemoved": true,
+    "activeTokenReferences": 0,
+    "pendingCredentialRecords": 0,
+    "oldVaultTokenPagesCompacted": true,
+    "vaultFreePagesAfterCompaction": 0,
+    "vaultIntegrity": "ok",
+    "formalAuditsRetained": 2,
+    "cleanupOnlyMetadataRetained": true,
+    "logicalSecretScanFindings": 0,
+    "scope": "Owned current files/database/cache/process",
+    "diskRecoveryAreaOrOsCacheOrHumanApBrowserSessionErasureClaimed": false
+  },
+  "ui": {
+    "browserActuallyUsedByHuman": "Chrome",
+    "registryValueProvesActualBrowserOrProfile": false,
+    "helperPinsBrowserProfile": false,
+    "initialUiErrorRootCause": "unresolved",
+    "successfulConsentAndCleanupDoesNotDetermineInitialErrorCause": true,
+    "priorRegistryDefaultHandlerObservation": "MSEdgeHTM"
+  },
+  "unchanged": {
+    "existingApClientOwnerBootstrapVolumes": true,
+    "globalDockerSecurity": true,
+    "otherTasks": true
+  },
+  "uncompleted": [
+    "Google Drive/Slack actual provider Connection/credentials/policies/provider flow deployment",
+    "Production LLM, production authentication/TLS/UID and actual history migration",
+    "Production secret manager/rotation and cross-host vault/lease",
+    "New OAuth bootstrap sessions across multiple Web processes",
+    "Real AP concurrent refresh/revoke, load and full standard UI/dynamic API authorization",
+    "Static-only Web role-aware bootstrap and generic MCP proxy",
+    "Automatic AP USER API formal cleanup and physical AP record deletion proof"
+  ],
+  "stoppedInternalHttpBoundaryTestsResumed": false,
+  "privateIdentifiersOrRawEvidenceIncluded": false,
+  "documentation": "PHASE2-VALIDATION.md"
+}

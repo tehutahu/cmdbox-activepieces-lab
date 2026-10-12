@@ -18,7 +18,7 @@ def validate_tool_config(config):
     require(type(tools) is list and bool(tools) and len(set(x for x in tools if type(x) is str))==len(tools)
             and all(type(x) is str and re.fullmatch(r'[A-Za-z][A-Za-z0-9_]{0,99}',x) for x in tools), 'explicit_tool_allowlist_required')
     if mode == UID_MODE:
-        require(tools == ['lab_identity'], 'uid_flow_manifest_required')
+        require(tools in (['lab_identity'], ['lab_drive_search']), 'uid_flow_manifest_required')
     else:
         key = config.get('mcpserver_apikey')
         require(type(key) is str and bool(key) and not any(x.isspace() for x in key), 'static_tool_key_required')
@@ -41,6 +41,11 @@ def validate_bootstrap(configs, *, issuer, verifier, broker, shared_replay_guard
         require(callable(getattr(issuer, 'attach', None)), 'web_identity_runtime_not_configured')
         require(callable(getattr(verifier, 'verify', None)), 'worker_identity_runtime_not_configured')
         require(callable(getattr(broker, 'require_actor_connection', None)), 'ap_broker_runtime_not_configured')
+        aliases = {c['mcpserver_mcp_tools'][0] for c in configs if c['mcpserver_auth_mode'] == UID_MODE}
+        require(aliases == {getattr(broker, 'tool_alias', 'lab_identity')}, 'uid_broker_alias_mismatch')
+        if aliases == {'lab_drive_search'}:
+            from .stock_drive import StockDriveBroker
+            require(isinstance(broker, StockDriveBroker), 'stock_broker_required')
         # A caller's Boolean is not evidence that replay storage is shared.
         from .core import RedisReplayGuard
         require(isinstance(shared_replay_guard, RedisReplayGuard) and getattr(verifier, '_guard', None) is shared_replay_guard,

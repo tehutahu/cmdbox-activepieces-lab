@@ -1,0 +1,40 @@
+{
+  "status": "PREAUTHORIZE_CANDIDATE",
+  "phase1PublicCommit": "7f34def5574524a892a9b937edd2e6e64296547f",
+  "phase2Published": false,
+  "tests": {
+    "mockContractUnittest": 16,
+    "nativeMockScenarios": 4,
+    "nativeLocalEntryMockScenarios": 4,
+    "scope": "Overlapping test/scenario groups; AP I/O mocked; actual cmdbox/Redis/worker/ADK/official SDK on native paths",
+    "cleanupContractUnittest": 19,
+    "cleanupNativeCases": 3,
+    "cleanupNativeOutcomeGroups": 5,
+    "wholeDummyRegressionUnittest": 67,
+    "actualAdkOfflineScenarios": 7
+  },
+  "actualAdapterApIntegrationCompleted": false,
+  "humanAuthorizeStarted": false,
+  "providerCredentialsUsed": false,
+  "stoppedBoundaryTestsResumed": false,
+  "privateValuesIncluded": false,
+  "conditions": [
+    "Current client recognition, subject/project membership and existing synthetic targets remain pending until approved human consent and verified token/tool",
+    "Owner alone operates AP Authorize; local entry starts bounded state/PKCE and shared two-hour clock",
+    "Each A/B: one exchange, one refresh and up to two own synthetic flow calls",
+    "HTTP200 revoke remains pending until approved formal USER/UI grant verification"
+  ],
+  "cleanup": {
+    "mode": "MANUAL-AP-UI-WITNESS",
+    "automaticApUserApiAuthentication": false,
+    "actualApUiFormalConfirmationExecuted": false,
+    "preMutationTargetValidation": true,
+    "purposeBoundProofCas": true,
+    "allUidQuarantineOnFailure": true,
+    "afterDeadlineOperatorAvailable": true,
+    "unknownUnresolvedGrantHeld": true,
+    "callableBooleanConfirmationAccepted": false
+  },
+  "recordScope": "PHASE2_PREAUTHORIZE_SNAPSHOT",
+  "currentSummary": "phase2-validation-summary.json"
+}

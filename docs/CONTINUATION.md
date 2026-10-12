@@ -1,5 +1,7 @@
 # 継続検証: local/mock lifecycle
 
+この文書と[集約JSON](continuation-summary.json)はphase1 local/mockの履歴です。後続の限定実AP統合と終了確認は[phase2結果](PHASE2-VALIDATION.md)へ分けています。以下の「実AP未接続」は当時の状態であり、現在の全体状態ではありません。
+
 2026-10-11の公開baselineに対する追加実装です。実AP・実provider・新secret・新OAuth grantを使わず、固定public cmdbox 0.8.5.4の独立コピーと実Redis・ADK 2.8.0で検証します。既存AP、既存volume、Dockerの全体設定、停止済み内部HTTP試験は変更していません。
 
 ## 完成した範囲
@@ -43,11 +45,11 @@ offline32 unit/integration + 実ADK7、既存実アプリ11、継続12 scenario 
 
 lintはpublic candidateのみを対象にAST・Ruff correctness・差分の空白を確認します。unified diffの空context行は形式上のspaceを含むため、patch自体の追加source空白は`git apply --check --whitespace=error`で確認します。固定sourceへのpatch replayと独立copyとの一致も検査します。既存の専用runtime以外を使う場合、`CMDBOX_LAB_RUNTIME_ROOT`をsetupと実行で揃えてください。
 
-## 未検証と実AP統合の条件
+## このlocal/mock試験の限界と後続条件
 
 - fake state/PKCE/token/password/cookie/signing keyは公開literalです。本番の安全なentropy、TLS/session設定、暗号化vault、provider refresh token rotation/revoke失敗再試行は未実装です。SQLite transaction内のfake呼出しを実provider HTTPへそのまま置き換えてはいけません。
-- 新adapterと実AP CE0.92.2は未接続です。対象AP/project/client/scope/本人/用途を明示した新grantの許可後に、公式OAuth metadata・redirect・実PKCE・userinfo subject・project/grantを照合し、認可済みflowとConnectionで統合する必要があります。
-- 実AP/Google Drive/SlackのConnection、token、実データ、flow配布や公開は未検証です。対象account/workspace/app/scope/保管先/失効手順を親で確定してから進めます。
+- 当時は新adapterと実AP CE0.92.2が未接続でした。後続phase2で対象別本人承認、実PKCE、userinfo、subject/project/client/grantと合成flowを確認しました。実provider Connectionや本番への適用は引き続き別の対象別承認・検証が必要です。
+- このlocal/mock試験は実AP tokenを使いません。Google Drive/SlackのConnection・実データ・provider flow配布や公開は、後続phase2でも未検証です。対象account/workspace/app/scope/保管先/失効手順を親で確定してから進めます。
 - history移行は合成データの固定ADK2.8 schemaだけです。実履歴、旧filesystem artifact、別schema、稼働中のonline移行には適用していません。server/workerを停止し、本人確認済みmapping、backup、保管・rollback方針を決める必要があります。
 - 全標準管理UIやupstream全APIのACLを保証する結果ではありません。棚卸しの未mount群を実運用で有効化する際には個別にUID/role/path/command認可が必要です。汎用MCP proxyは追加していません。
 - static-only Web bootstrapは未検証です。今回のlabはstatic/UID両modeと全identity runtimeを注入しています。tool層のstatic-only設定検証はUID broker等を要求せず成功しますが、native Web jobには署名issuer、worker verifier/shared guardが必要です。Web/CLIのruntime roleを区別して不足依存を起動時に拒否する一般化したbootstrapは未整備です。

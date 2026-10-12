@@ -1,6 +1,10 @@
 # 検証レポート
 
-追加検証: offline32 unit/integration + 実ADK dummy7、既存実アプリ11、[継続12 scenario group](CONTINUATION.md)が通過しました。2つのWeb/worker processで実Redis共有guard・lifecycle競合・native resource APIを確認しています。[集約結果](continuation-summary.json)。以下は公開baseline時点の既存記録です。
+最新（2026-10-12）は[標準Drive E2E](GOOGLE-DRIVE-E2E.md)：native cmdbox→Redis→worker→実ADK scripted→AP標準Driveで実2件取得、元台帳2/2と終了を確認。自然言語LLMは未検証。以下のphase2/公開baselineは保存時点の履歴。[最新JSON](google-drive-e2e-summary.json)
+
+最新のphase2では、単体回帰67件・実ADK offline dummy7件、native mock経路を確認した後、本人認可したA/Bで新adapter→実APの限定統合を実行しました。各UIDでflow二回・refresh一回・通常revoke・native拒否が成功し、本人UI witness二件と専用停止・秘密整理まで確認しました。[実AP/Mock/未検証の区分](PHASE2-VALIDATION.md)と[最新集約JSON](phase2-validation-summary.json)を参照してください。
+
+phase1のoffline32 unit/integration + 実ADK dummy7、実アプリ11、[継続12 scenario group](CONTINUATION.md)は別の履歴です。2 Web/worker processの共有guard検証はphase1のmockであり、phase2新OAuth bootstrapの複数process成功ではありません。以下は公開baseline時点の既存記録です。
 
 2026-10-11、固定版を使ったWindowsローカル検証。非公開業務アプリ、Google/Slackの実credential、業務data、外部LLM inferenceは使っていません。実AP試験の生証跡は元の非公開検証workspaceに保持し、この公開candidateには集約結果だけを載せます。
 
@@ -42,7 +46,7 @@
 10. 明示した合成再接続はgenerationを増やす。実grant作成なし。
 11. traceでnative段階・allowlist・禁止socket試行ゼロ・正常停止を確認。
 
-password/cookie/signing keyは公開literalなので、この成功は本番認証の安全性を証明しません。LOCAL MOCKはmodel、MCP transport、credential provider、limiter planを合成実装へ差替えています。最小native routeだけを起動し、標準管理UIと全APIの隔離は未検証です。新adapterと実APの組合せはまだ実行していません。
+password/cookie/signing keyは公開literalなので、この成功は本番認証の安全性を証明しません。LOCAL MOCKはmodel、MCP transport、credential provider、limiter planを合成実装へ差替えています。最小native routeだけを起動し、標準管理UIと全APIの隔離は未検証です。この11件自体は新adapter＋実APの結果を含みません。後続phase2の実AP結果は上記の別記録に分けています。
 
 初期の失敗実行では依存import時のtokenizer取得がsocket制限に阻まれました。固定hashの公式assetをsetup時に配置後、通過実行では禁止socket試行ゼロでした。
 

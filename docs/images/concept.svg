@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="450" viewBox="0 0 1380 450" role="img" aria-labelledby="title desc">
+<title id="title">自分の権限で、自分の作業手順を使う</title>
+<desc id="desc">利用者のログインを、本人のAP projectとConnectionに対応づける</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#536779"/></marker></defs>
+<rect width="1380" height="450" fill="#f8fafc"/>
+<g font-family="Yu Gothic,Meiryo,system-ui,sans-serif">
+<text x="40" y="52" font-size="27" font-weight="700" fill="#102a43">自分の権限で、自分の作業手順を使う</text>
+<text x="40" y="86" font-size="17" fill="#486581">利用者のログインを、本人のAP projectとConnectionに対応づける</text>
+<rect x="40.0" y="130" width="236.8" height="130" rx="14" fill="#e0f2fe" stroke="#b8c8d8"/>
+<text x="55.0" y="163" font-size="19" font-weight="700" fill="#102a43">利用者</text>
+<text x="55.0" y="197" font-size="15" fill="#334e68">既存アプリへログイン</text>
+<text x="55.0" y="221" font-size="15" fill="#334e68">Google / APへ本人同意</text>
+<path d="M279.8 195 H296.8" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="300.8" y="130" width="236.8" height="130" rx="14" fill="#dbeafe" stroke="#b8c8d8"/>
+<text x="315.8" y="163" font-size="19" font-weight="700" fill="#102a43">cmdbox / ADK</text>
+<text x="315.8" y="197" font-size="15" fill="#334e68">誰の依頼かを保持</text>
+<text x="315.8" y="221" font-size="15" fill="#334e68">許可された検索toolだけ</text>
+<path d="M540.6 195 H557.6" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="561.6" y="130" width="236.8" height="130" rx="14" fill="#ede9fe" stroke="#b8c8d8"/>
+<text x="576.6" y="163" font-size="19" font-weight="700" fill="#102a43">UID broker</text>
+<text x="576.6" y="197" font-size="15" fill="#334e68">本人・projectを照合</text>
+<text x="576.6" y="221" font-size="15" fill="#334e68">tokenと呼出しを制御</text>
+<path d="M801.4000000000001 195 H818.4000000000001" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="822.4000000000001" y="130" width="236.8" height="130" rx="14" fill="#ffedd5" stroke="#b8c8d8"/>
+<text x="837.4000000000001" y="163" font-size="19" font-weight="700" fill="#102a43">AP project</text>
+<text x="837.4000000000001" y="197" font-size="15" fill="#334e68">flow＝作業手順</text>
+<text x="837.4000000000001" y="221" font-size="15" fill="#334e68">Connection＝本人の接続</text>
+<path d="M1062.2 195 H1079.2" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="1083.2" y="130" width="236.8" height="130" rx="14" fill="#dcfce7" stroke="#b8c8d8"/>
+<text x="1098.2" y="163" font-size="19" font-weight="700" fill="#102a43">Google Drive</text>
+<text x="1098.2" y="197" font-size="15" fill="#334e68">固定folderを検索</text>
+<text x="1098.2" y="221" font-size="15" fill="#334e68">metadataを返す</text>
+<text x="40" y="314" font-size="17" fill="#334e68">認可① Google → AP Connection：Google accountとscopeへの本人同意</text>
+<text x="40" y="348" font-size="17" fill="#334e68">認可② アプリ → AP：本人のAP projectを使う許可（PKCE）</text>
+<text x="40" y="382" font-size="17" fill="#334e68">今回の実測：scripted ADKで2件取得。自然言語の自律判断・本番運用は未検証。</text>
+</g>
+</svg>

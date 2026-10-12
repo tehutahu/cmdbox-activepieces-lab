@@ -1,0 +1,64 @@
+{
+  "status": "PASS-LOCAL-DRIVE-PREPARATION-ONLY",
+  "date": "2026-10-11",
+  "source": {
+    "activepiecesVersion": "0.92.2",
+    "commit": "d125d34e59ac57ea4d0df57af4b917344027f06b",
+    "drivePieceVersion": "0.11.0",
+    "mcpPieceVersion": "0.0.21",
+    "flowSchemaVersion": "27",
+    "runningServerSourceHashesMatched": 3
+  },
+  "scopeFacts": {
+    "stockDeclared": [
+      "https://www.googleapis.com/auth/drive",
+      "email"
+    ],
+    "undeclaredScopesRejected": true,
+    "driveFileArbitraryExistingDriveSearch": false,
+    "folderQueryIsOAuthBoundary": false,
+    "narrowScopeDerivativeImplemented": false
+  },
+  "newValidation": {
+    "contractTests": 12,
+    "nativeOutcomeGroups": 4,
+    "nativeMcpCalls": 4,
+    "nativeOwnUidOnlyMetadata": true,
+    "dummyRefreshGeneration": true,
+    "dummyRevokeBlocksOnlyOwnBinding": true,
+    "forbiddenNativeSocketAttempts": 0,
+    "ownedProcessesStopped": true
+  },
+  "authorizedChanges": {
+    "localImportRequestTemplate": 1,
+    "dummyReferencesOnly": true,
+    "productionBootstrapChanged": false,
+    "phase2FilesModified": 0
+  },
+  "actualApApiCalled": false,
+  "googleApiCalled": false,
+  "stockDrivePieceExecuted": false,
+  "realFilesAccessedOrCreated": false,
+  "actualClientSecretConnectionGrantCreated": false,
+  "networkOrGlobalDockerChanged": false,
+  "commitPushOrPrCreated": false,
+  "limitations": [
+    "AP runtime import/validate/publish not executed",
+    "Drive installed metadata/package version not confirmed",
+    "Google consent/state/PKCE/refresh/revoke not executed",
+    "New search alias injected only in native mock factory; live schema/bootstrap unchanged",
+    "Stock query has no escaping, trashed exclusion, total page bound or incompleteSearch propagation",
+    "Broker response bound does not bound stock upstream retrieval",
+    "Google file names are untrusted data; production LLM not tested",
+    "Raw tool name must be discovered and pinned; suffix compatibility not assumed",
+    "No generic external MCP proxy"
+  ],
+  "futureApprovalTargets": [
+    "Specific Google account/Cloud project/web client/scope/audience",
+    "Own AP project/Connection and reviewed piece installation/import/publish",
+    "Dedicated AP API/worker HTTPS egress endpoints and duration",
+    "Credential storage and explicit cleanup targets",
+    "New app-to-AP owner consent and runtime plus live alias registration"
+  ],
+  "automaticApprovalRejections": 0
+}

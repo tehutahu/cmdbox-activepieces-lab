@@ -1,0 +1,39 @@
+{
+  "schema": "stock-drive-egress-review-v1",
+  "enabled": false,
+  "status": "PROPOSAL-ONLY-NOT-APPLIED",
+  "image": "docker.io/library/nginx:stable@sha256:6e2a172ae5503c0df64cd3294b57c86394ced402016a8cc45436086fa51f5d02",
+  "platform": "linux/amd64",
+  "internalNetwork": "cmdbox-stock-drive-relay-internal",
+  "internalSubnet": "172.30.92.0/28",
+  "egressNetwork": "cmdbox-stock-drive-relay-egress",
+  "relayName": "cmdbox-stock-drive-relay",
+  "relayIpv4": "172.30.92.2",
+  "approvedApIpv4": "172.30.92.3",
+  "publishedPorts": [],
+  "tlsTerminates": false,
+  "caChanges": false,
+  "configSha256": "33c1764c5975be04f0474abd7364075bfbffcac28460ede9460eda462f8940c4",
+  "sniUpstreams": [
+    "oauth2.googleapis.com:443",
+    "www.googleapis.com:443"
+  ],
+  "apHostnameMapping": {
+    "oauth2.googleapis.com": "172.30.92.2",
+    "www.googleapis.com": "172.30.92.2"
+  },
+  "apNetworkMode": "STRICT",
+  "apSsrfAllowListAdd": [
+    "172.30.92.2"
+  ],
+  "httpProxyEnvChanges": false,
+  "maxWindowSeconds": 7200,
+  "existingApTarget": "OWNER-PRIVATE-PLAN-REQUIRED",
+  "autoApplyImplemented": false,
+  "offlineNginxPreflightExecuted": true,
+  "actualApOrGoogleTrafficTested": false,
+  "stoppedInternalHttpProbesIncluded": false,
+  "nginxVersion": "1.30.5",
+  "offlineListenSubstituted": true,
+  "exactDeploymentBindVerified": false
+}

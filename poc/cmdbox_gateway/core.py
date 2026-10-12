@@ -184,7 +184,9 @@ class BindingRegistry:
     """Trusted control-plane input only; not a browser/body/LLM-owned configuration store."""
     def __init__(self, approved_flows):
         self._approved = frozenset(approved_flows)
-        require(all(x.alias == 'lab_identity' and not x.raw_name.startswith('ap_') and x.raw_name.endswith('_mcp') for x in self._approved), 'invalid_synthetic_policy')
+        require(all((x.alias == 'lab_identity' and not x.raw_name.startswith('ap_') and x.raw_name.endswith('_mcp'))
+                    or (x.alias == 'lab_drive_search' and re.fullmatch(r'lab_drive_search_[A-Za-z0-9_]+_mcp', x.raw_name))
+                    for x in self._approved), 'invalid_synthetic_policy')
         self._rows = {}
 
     def bind(self, binding):
@@ -207,9 +209,12 @@ class BindingRegistry:
             self._rows[uid] = replace(binding, status='RECONNECT_REQUIRED', generation=binding.generation + 1)
 
 class AuthorizedFlowBroker:
+    tool_alias = 'lab_identity'
     """No registry mutation, AP management tools, refresh fallback or credential persistence."""
-    def __init__(self, registry, credential_provider, transport):
+    def __init__(self, registry, credential_provider, transport, *, resource=RESOURCE):
+        require(type(resource) is str and bool(resource), "configured_resource_required")
         self._registry, self._credentials, self._transport = registry, credential_provider, transport
+        self._resource = resource
 
     def binding_for(self, context):
         invocation = actor_for_adk(context)
@@ -237,7 +242,7 @@ class AuthorizedFlowBroker:
         require(type(credential) is str and credential, 'reconnect_required')
         cache_key = (binding.uid, invocation.actor.nonce, invocation.session_id, binding.subject, binding.project_id, binding.grant_id, binding.generation)
         try:
-            output = await self._transport.call(resource=RESOURCE, headers={'Authorization': 'Bearer ' + credential},
+            output = await self._transport.call(resource=self._resource, headers={'Authorization': 'Bearer ' + credential},
                                                 raw_name=binding.flow.raw_name, arguments={}, cache_key=cache_key)
         except GatewayError:
             raise

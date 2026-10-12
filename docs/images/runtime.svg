@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1380" height="450" viewBox="0 0 1380 450" role="img" aria-labelledby="title desc">
+<title id="title">通常実行と開発管理を分ける</title>
+<desc id="desc">実測したnative経路。秘密やUID/projectの選択権をmodelへ渡さない</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#536779"/></marker></defs>
+<rect width="1380" height="450" fill="#f8fafc"/>
+<g font-family="Yu Gothic,Meiryo,system-ui,sans-serif">
+<text x="40" y="52" font-size="27" font-weight="700" fill="#102a43">通常実行と開発管理を分ける</text>
+<text x="40" y="86" font-size="17" fill="#486581">実測したnative経路。秘密やUID/projectの選択権をmodelへ渡さない</text>
+<rect x="40.0" y="130" width="193.33333333333334" height="130" rx="14" fill="#dbeafe" stroke="#b8c8d8"/>
+<text x="55.0" y="163" font-size="19" font-weight="700" fill="#102a43">Web</text>
+<text x="55.0" y="197" font-size="15" fill="#334e68">checked UID</text>
+<text x="55.0" y="221" font-size="15" fill="#334e68">署名・TTL・nonce</text>
+<path d="M236.33333333333334 195 H253.33333333333334" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="257.33333333333337" y="130" width="193.33333333333334" height="130" rx="14" fill="#e0f2fe" stroke="#b8c8d8"/>
+<text x="272.33333333333337" y="163" font-size="19" font-weight="700" fill="#102a43">Redis / worker</text>
+<text x="272.33333333333337" y="197" font-size="15" fill="#334e68">job検証</text>
+<text x="272.33333333333337" y="221" font-size="15" fill="#334e68">共有replay guard</text>
+<path d="M453.66666666666674 195 H470.66666666666674" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="474.6666666666667" y="130" width="193.33333333333334" height="130" rx="14" fill="#ede9fe" stroke="#b8c8d8"/>
+<text x="489.6666666666667" y="163" font-size="19" font-weight="700" fill="#102a43">実ADK</text>
+<text x="489.6666666666667" y="197" font-size="15" fill="#334e68">scripted model</text>
+<text x="489.6666666666667" y="221" font-size="15" fill="#334e68">lab_drive_searchのみ</text>
+<path d="M671.0 195 H688.0" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="692.0" y="130" width="193.33333333333334" height="130" rx="14" fill="#ede9fe" stroke="#b8c8d8"/>
+<text x="707.0" y="163" font-size="19" font-weight="700" fill="#102a43">broker / vault</text>
+<text x="707.0" y="197" font-size="15" fill="#334e68">UID・grant・世代</text>
+<text x="707.0" y="221" font-size="15" fill="#334e68">同じ元台帳で2/2</text>
+<path d="M888.3333333333334 195 H905.3333333333334" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="909.3333333333334" y="130" width="193.33333333333334" height="130" rx="14" fill="#ffedd5" stroke="#b8c8d8"/>
+<text x="924.3333333333334" y="163" font-size="19" font-weight="700" fill="#102a43">AP標準flow</text>
+<text x="924.3333333333334" y="197" font-size="15" fill="#334e68">空引数・固定folder</text>
+<text x="924.3333333333334" y="221" font-size="15" fill="#334e68">Drive Connection</text>
+<path d="M1105.6666666666667 195 H1122.6666666666667" fill="none" stroke="#536779" stroke-width="2.5" marker-end="url(#arrow)"/>
+<rect x="1126.6666666666667" y="130" width="193.33333333333334" height="130" rx="14" fill="#dcfce7" stroke="#b8c8d8"/>
+<text x="1141.6666666666667" y="163" font-size="19" font-weight="700" fill="#102a43">Google API</text>
+<text x="1141.6666666666667" y="197" font-size="15" fill="#334e68">最小metadata</text>
+<text x="1141.6666666666667" y="221" font-size="15" fill="#334e68">期待2件を確認</text>
+<text x="40" y="314" font-size="17" fill="#334e68">別経路：開発operator → 短期OAuth → 公式ap_*管理MCP（42toolsを実測）</text>
+<text x="40" y="348" font-size="17" fill="#334e68">開発管理は元flowの読取・有効化だけ。通常runtimeのallowlistは拡大しない。</text>
+<text x="40" y="382" font-size="17" fill="#334e68">終了：AP grant失効・local token除去・app/worker停止・元network/cache復旧。</text>
+</g>
+</svg>

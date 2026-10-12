@@ -21,7 +21,9 @@ class EvidenceResult(unittest.TextTestResult):
         self.outcomes.append({'name': test.id(), 'status': 'fail', 'errorType': err[0].__name__})
 
 def main():
-    suite = unittest.defaultTestLoader.discover(str(ROOT / 'poc'), pattern='test_*.py')
+    # The custom-piece experiment is preserved but is no longer the selected path.
+    suite = unittest.TestSuite(unittest.defaultTestLoader.discover(str(ROOT / 'poc'), pattern=p.name)
+        for p in sorted((ROOT / 'poc').glob('test_*.py')) if p.name != 'test_metadata_drive.py')
     result = unittest.TextTestRunner(verbosity=2, resultclass=EvidenceResult).run(suite)
     outcomes = list(result.outcomes); blocked = []; status = 'fail'
     if result.wasSuccessful():

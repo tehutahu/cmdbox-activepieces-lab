@@ -4,25 +4,72 @@
   "oneOf": [
     {
       "type": "object",
-      "required": ["mcpserver_auth_mode", "mcpserver_mcp_tools"],
+      "required": [
+        "mcpserver_auth_mode",
+        "mcpserver_mcp_tools"
+      ],
       "additionalProperties": false,
       "properties": {
-        "mcpserver_name": {"type":"string", "minLength":1},
-        "mcpserver_auth_mode": {"const": "user_ap_binding"},
-        "mcpserver_mcp_tools": {"const": ["lab_identity"]}
+        "mcpserver_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mcpserver_auth_mode": {
+          "const": "user_ap_binding"
+        },
+        "mcpserver_mcp_tools": {
+          "enum": [
+            [
+              "lab_identity"
+            ],
+            [
+              "lab_drive_search"
+            ]
+          ]
+        }
       }
     },
     {
       "type": "object",
-      "required": ["mcpserver_auth_mode", "mcpserver_mcp_tools", "mcpserver_url", "mcpserver_apikey"],
+      "required": [
+        "mcpserver_auth_mode",
+        "mcpserver_mcp_tools",
+        "mcpserver_url",
+        "mcpserver_apikey"
+      ],
       "additionalProperties": false,
       "properties": {
-        "mcpserver_name": {"type":"string", "minLength":1},
-        "mcpserver_auth_mode": {"const": "static_api_key"},
-        "mcpserver_mcp_tools": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,99}$"}},
-        "mcpserver_url": {"type": "string", "pattern": "^https?://"},
-        "mcpserver_apikey": {"type": "string", "minLength": 1, "pattern": "^\\S+$"},
-        "mcpserver_transport": {"enum": ["sse", "streamable-http"]}
+        "mcpserver_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mcpserver_auth_mode": {
+          "const": "static_api_key"
+        },
+        "mcpserver_mcp_tools": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]{0,99}$"
+          }
+        },
+        "mcpserver_url": {
+          "type": "string",
+          "pattern": "^https?://"
+        },
+        "mcpserver_apikey": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^\\S+$"
+        },
+        "mcpserver_transport": {
+          "enum": [
+            "sse",
+            "streamable-http"
+          ]
+        }
       }
     }
   ],

@@ -42,6 +42,13 @@ def trusted_runner_scope(actor, actual_session_id):
 
 def approved_ap_toolset():
     require(_broker is not None, 'ap_broker_runtime_not_configured')
+    alias = getattr(_broker, 'tool_alias', 'lab_identity')
+    if alias == 'lab_drive_search':
+        from .stock_drive import StockDriveBroker
+        from .drive_adk import PreparedDriveToolset
+        require(isinstance(_broker, StockDriveBroker), 'stock_broker_required')
+        return PreparedDriveToolset(_broker)
+    require(alias == 'lab_identity', 'uid_broker_alias_mismatch')
     from .adk_adapter import ScopedSyntheticToolset
     return ScopedSyntheticToolset(_broker)
 
@@ -53,6 +60,8 @@ def preflight_tools(configs, actor):
     from .config import validate_tool_config, UID_MODE
     for config in configs:
         if validate_tool_config(config) == UID_MODE:
+            require(config['mcpserver_mcp_tools'] == [getattr(_broker, 'tool_alias', 'lab_identity')],
+                    'uid_broker_alias_mismatch')
             require_ap_connection(actor)
 
 def bootstrap(configs, *, issuer, verifier, broker, shared_replay_guard):

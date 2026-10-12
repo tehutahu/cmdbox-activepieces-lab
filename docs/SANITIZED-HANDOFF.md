@@ -1,5 +1,7 @@
 # cmdbox / Activepieces / ADK 検証の受渡し
 
+この文書の本文は公開baseline時点の履歴です。最新の[phase2結果](PHASE2-VALIDATION.md)では新adapter＋実APのA/B合成flow、refresh/revoke、本人UI witness二件、専用停止・秘密整理まで確認しました。本文の「未実装/未接続」はその当時の状態です。現在の役割分担は[RESPONSIBILITIES](RESPONSIBILITIES.md)、残課題は[NEXT-STEPS](NEXT-STEPS.md)、集約値は[最新JSON](phase2-validation-summary.json)を参照してください。
+
 これは公開candidateと共有資料に使えるサニタイズ済み文章です。本人メール、実AP識別子、machine名、個人path、secret、生ログは含めていません。
 
 ## 全体の結論
